@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KeySig MIDI</title>
+<meta name="description" content="관악기 MIDI 입력에 조표(Key Signature)를 적용해 Logic Pro / MainStage로 보내는 웹 프로그램">
+<style>
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --ink:#1d2330; --muted:#6b7280; --line:#dfe3ea;
+  --accent:#1f4e9c; --accent-ink:#ffffff; --sharp:#c0392b; --ok:#1e8a4c; --warn:#b45309; --chip:#eef2f8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171d; --card:#1d2129; --ink:#e7eaf0; --muted:#9aa3b2; --line:#2e3440;
+    --accent:#6c9cf0; --accent-ink:#0d1117; --sharp:#ff7b6b; --ok:#4ccb83; --warn:#f0b357; --chip:#262c37;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171d; --card:#1d2129; --ink:#e7eaf0; --muted:#9aa3b2; --line:#2e3440;
+  --accent:#6c9cf0; --accent-ink:#0d1117; --sharp:#ff7b6b; --ok:#4ccb83; --warn:#f0b357; --chip:#262c37;
+}
+*{box-sizing:border-box}
+html{zoom:.75}   /* 화면 전체를 75% 크기로 */
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;font-size:18.8px;line-height:1.45}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:27.5px;margin:4px 0 2px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:16.2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:17.5px;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:6px 0}
+label{font-size:17.5px}
+select,input[type=number]{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:6px 8px;max-width:100%}
+select{min-width:0;flex:1 1 220px}
+input[type=number]{width:72px}
+button{font:inherit;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:8px;
+  padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:active{transform:translateY(1px)}
+.status{font-size:16.2px;color:var(--muted)}
+.status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
+.ks-bar{display:flex;gap:8px;align-items:center}
+.ks-bar button{font-size:25px;padding:6px 16px}
+.ks-bar select{font-size:21.2px;font-weight:600}
+.keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.key{border:1px solid var(--line);border-radius:8px;text-align:center;padding:6px 0;background:var(--chip)}
+.key small{display:block;color:var(--muted);font-size:13.8px}
+.key b{font-size:27.5px}
+.key.acc b{color:var(--sharp)}
+.big{font-size:55px;font-weight:700;text-align:center;margin:6px 0 0;min-height:60px}
+.mods{text-align:center;color:var(--sharp);min-height:22px;font-weight:600}
+.slot{display:grid;grid-template-columns:auto auto auto 1fr;gap:8px;align-items:center;margin:6px 0}
+.slot .cc{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;min-width:52px}
+.mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
+details summary{cursor:pointer;color:var(--muted);font-size:17.5px}
+details p,details li{font-size:17.5px}
+.help{color:var(--muted);font-size:16.2px}
+.theme{float:right}
+@media (max-width:560px){
+  .slot{grid-template-columns:1fr auto; }
+  .slot select{grid-column:1 / -1}
+  .big{font-size:42.5px}
+  .key b{font-size:22.5px}
+}
+</style>
+</head>
+<body>
+<main>
+  <button class="theme" id="themeBtn" title="밝게/어둡게">◐</button>
+  <h1>KeySig MIDI</h1>
+  <p class="sub">자연음 운지로 연주하면 조표의 ♯/♭이 자동 적용되어 Logic Pro·MainStage로 전달됩니다. (Chrome·Edge 전용)</p>
+
+  <div class="card" id="midiCard">
+    <h2>연결</h2>
+    <div class="row">
+      <label for="inSel">입력 (악기)</label>
+      <select id="inSel"></select>
+    </div>
+    <div class="row">
+      <label for="outSel">출력 (Logic으로)</label>
+      <select id="outSel"></select>
+      <label><input type="checkbox" id="synthChk"> 브라우저 내장 소리</label>
+    </div>
+    <div class="status" id="midiStatus">MIDI 준비 중…</div>
+  </div>
+
+  <div class="card">
+    <h2>조표 (Key Signature)</h2>
+    <div class="ks-bar">
+      <button id="ksDown" title="♭ 추가 (←)">◀</button>
+      <select id="ksSel"></select>
+      <button id="ksUp" title="♯ 추가 (→)">▶</button>
+    </div>
+    <div class="keys" id="keys"></div>
+    <div class="big" id="big">—</div>
+    <div class="mods" id="mods"></div>
+  </div>
+
+  <div class="card">
+    <h2>악기 설정</h2>
+    <div class="row">
+      <label for="semiSel">반음 키 해석</label>
+      <select id="semiSel">
+        <option value="auto">자동 (♭조: ♯키 / ♯조: ♭키로 해석) — 권장</option>
+        <option value="sharp">항상 ♯키(올림)로 해석</option>
+        <option value="flat">항상 ♭키(내림)로 해석</option>
+        <option value="off">해석 안 함 (반음은 그대로 통과)</option>
+      </select>
+    </div>
+    <div class="slot">
+      <span>악기 키 1 (✱1)</span><span class="cc" id="cc0">CC80</span>
+      <button data-learn="0">학습</button>
+      <select id="role0"></select>
+    </div>
+    <div class="slot">
+      <span>악기 키 2 (✱2)</span><span class="cc" id="cc1">CC81</span>
+      <button data-learn="1">학습</button>
+      <select id="role1"></select>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="fixChk" checked> 벨로시티 고정</label>
+      <input type="number" id="fixVal" min="1" max="127" value="100">
+      <label><input type="checkbox" id="monoChk" checked> 단음 악기 (관악기)</label>
+    </div>
+    <div class="row">
+      <label for="trSel">이조</label>
+      <select id="trSel" style="flex:0 1 140px"></select>
+      <label for="octSel">옥타브 (키보드 연주)</label>
+      <select id="octSel" style="flex:0 1 110px"></select>
+    </div>
+    <div class="mon" id="mon">받은 신호(호흡 제외): 없음</div>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>사용법 · 처음 설정</summary>
+      <ol>
+        <li><b>Mac 처음 1회:</b> 오디오 MIDI 설정 → 윈도우 → MIDI 스튜디오 보기 → <b>IAC 드라이버</b> 더블클릭 → "기기가 온라인 상태임" 체크.</li>
+        <li>Clarii를 <b>MIDI Mode</b>로 두고 USB(또는 블루투스)로 연결한 뒤 이 페이지를 엽니다. 입력에 Clarii, 출력에 <b>IAC 드라이버 버스 1</b>을 고릅니다.</li>
+        <li><b>Logic Pro</b>: 설정 → MIDI → 입력에서 <b>Clarii 항목 체크 해제</b>, IAC 드라이버만 체크.<br>
+            <b>MainStage</b>: 레이아웃 모드 → 건반 그림 → 입력을 <b>IAC 드라이버</b>로.</li>
+        <li>조표를 고르고 연주합니다. ✱1 = ♮(조표 해제), ✱2 = ♯ 올림 (Clarii Controllers에서 ✱키를 Artl.로 설정).</li>
+      </ol>
+      <p class="help">컴퓨터 키보드(이 페이지가 앞에 있을 때): A S D F G H J = C D E F G A B, K L ; = 위 C D E,
+        Q/W/E 누른 채 = ♭/♯/♮, ←/→ 조표, 0 조표 Off, ↑/↓ 옥타브, Esc 모든 음 끄기.
+        악기가 연결되어 있으면 키보드로는 음이 나지 않고 조작만 됩니다.</p>
+      <p class="help">한계: E+반음 키(=F)처럼 결과가 흰건반 음이면 일반 운지와 구분할 수 없어 ✱2 키를 사용합니다.</p>
+    </details>
+  </div>
+</main>
+
+<script>
+"use strict";
+/* ───────── 음악 이론 ───────── */
+const LETTERS = "CDEFGAB";
+const BASE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const LET_OF = {0:"C",2:"D",4:"E",5:"F",7:"G",9:"A",11:"B"};
+const SHARP_ORDER = "FCGDAEB", FLAT_ORDER = "BEADGCF";
+const MAJOR = {0:"C",1:"G",2:"D",3:"A",4:"E",5:"B",6:"F♯",7:"C♯",[-1]:"F",[-2]:"B♭",[-3]:"E♭",[-4]:"A♭",[-5]:"D♭",[-6]:"G♭",[-7]:"C♭"};
+const MINOR = {0:"A",1:"E",2:"B",3:"F♯",4:"C♯",5:"G♯",6:"D♯",7:"A♯",[-1]:"D",[-2]:"G",[-3]:"C",[-4]:"F",[-5]:"B♭",[-6]:"E♭",[-7]:"A♭"};
+const CHROMA = ["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"];
+const ROLES = [["사용 안 함",""],["♮ 제자리표 (조표 해제)","nat"],["♯ 올림 (조표 적용 음 + 반음)","sharp"],["♭ 내림 (조표 적용 음 − 반음)","flat"]];
+const BREATH_CC = new Set([2,7,11]);
+const CONTINUOUS_CC = new Set([1,2,5,7,11,65,74,120,121,123]);
+const accSym = a => ({"-2":"𝄫","-1":"♭","0":"","1":"♯","2":"𝄪"})[a] ?? "?";
+const ksShort = k => k === 0 ? "Off" : Math.abs(k) + (k > 0 ? "♯" : "♭");
+function ksAcc(letter, ks){
+  if (ks > 0 && SHARP_ORDER.slice(0, ks).includes(letter)) return 1;
+  if (ks < 0 && FLAT_ORDER.slice(0, -ks).includes(letter)) return -1;
+  return 0;
+}
+
+/* ───────── 상태 ───────── */
+const S = {
+  ks:0, transpose:0, octave:0, semi:"auto", fixVel:100, mono:true,
+  slots:[{cc:80, role:"nat"}, {cc:81, role:"sharp"}],
+  inst:new Set(),            // 악기 키로 눌린 역할
+  kmods:new Set(),           // 컴퓨터 키보드 q/w/e
+  learning:-1,
+  active:new Map(),          // "ch:in" -> out
+  vel:new Map(),
+  outCount:new Map(),        // "ch:out" -> count
+  kbActive:new Map(),        // key -> {ch,out}
+};
+const store = {
+  get(){ try { return JSON.parse(localStorage.getItem("keysig") || "{}"); } catch(e){ return {}; } },
+  set(){ try { localStorage.setItem("keysig", JSON.stringify({
+      ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots,
+      inName:inSel.selectedOptions[0]?.textContent, outName:outSel.selectedOptions[0]?.textContent,
+      synth:synthChk.checked })); } catch(e){} }
+};
+
+/* ───────── 음 계산 (keysig_midi.py v3.5 과 동일) ───────── */
+function isNat(){ return S.kmods.has("e") || S.inst.has("nat"); }
+function mapIn(n){
+  let letter = LET_OF[n % 12], base = n, inst = 0;
+  if (letter === undefined){
+    let mode = S.semi;
+    if (mode === "auto") mode = S.ks < 0 ? "sharp" : S.ks > 0 ? "flat" : "off";
+    if (mode === "sharp"){ base = n - 1; inst = 1; }
+    else if (mode === "flat"){ base = n + 1; inst = -1; }
+    letter = LET_OF[((base % 12) + 12) % 12];
+    if (mode === "off") letter = undefined;
+  }
+  let acc = 0, label;
+  if (letter !== undefined){
+    acc = (isNat() ? 0 : ksAcc(letter, S.ks)) + inst;
+    if (S.inst.has("sharp")) acc += 1;
+    if (S.inst.has("flat")) acc -= 1;
+    if (S.kmods.has("q")) acc -= 1;
+    if (S.kmods.has("w")) acc += 1;
+    const natural = acc === 0 && ksAcc(letter, S.ks) !== 0;
+    label = letter + (natural ? "♮" : accSym(acc));
+  } else { base = n; label = CHROMA[n % 12]; }
+  const out = base + acc + S.transpose;
+  if (out < 0 || out > 127) return null;
+  return {out, label: label + (Math.floor(base / 12) - 1)};
+}
+
+/* ───────── MIDI 출력 ───────── */
+let access = null, outPort = null, inPort = null;
+function send(bytes){
+  if (outPort) { try { outPort.send(bytes); } catch(e){} }
+  synth.handle(bytes);
+}
+const noteOn  = (ch, n, v) => send([0x90 | ch, n, v]);
+const noteOff = (ch, n)    => send([0x80 | ch, n, 0]);
+function release(ch, out){
+  const k = ch + ":" + out, c = (S.outCount.get(k) || 0) - 1;
+  if (c > 0) { S.outCount.set(k, c); return; }
+  S.outCount.delete(k); noteOff(ch, out);
+}
+function addOut(ch, out){ const k = ch + ":" + out; S.outCount.set(k, (S.outCount.get(k) || 0) + 1); }
+function releaseAll(exceptKey){
+  for (const [k, out] of [...S.active]) {
+    if (k === exceptKey) continue;
+    S.active.delete(k); release(+k.split(":")[0], out);
+  }
+}
+function allNotesOff(){
+  releaseAll(null);
+  for (const [, v] of S.kbActive) release(v.ch, v.out);
+  S.kbActive.clear(); S.outCount.clear();
+  for (let ch = 0; ch < 16; ch++) send([0xB0 | ch, 123, 0]);
+  big.textContent = "—";
+}
+function remapHeld(){
+  for (const [k, old] of [...S.active]) {
+    const [ch, n] = k.split(":").map(Number);
+    const m = mapIn(n);
+    if (!m || m.out === old) continue;
+    release(ch, old); S.active.set(k, m.out); addOut(ch, m.out);
+    noteOn(ch, m.out, S.fixVel || S.vel.get(k) || 100);
+    show(m.label + "   (MIDI " + m.out + ")  ♪");
+  }
+}
+
+/* ───────── 악기 입력 ───────── */
+function onMidi(ev){
+  const [st, d1 = 0, d2 = 0] = ev.data, type = st & 0xF0, ch = st & 0x0F;
+  if (st >= 0xF0) return;                                   // 클럭 등 무시
+  if (type === 0x90 && d2 > 0){
+    const m = mapIn(d1); if (!m) return;
+    const key = ch + ":" + d1;
+    if (S.active.has(key)) release(ch, S.active.get(key));
+    S.active.set(key, m.out); S.vel.set(key, d2); addOut(ch, m.out);
+    noteOn(ch, m.out, S.fixVel || d2);
+    if (S.mono) releaseAll(key);
+    show(m.label + "   (MIDI " + m.out + ")  ♪");
+    return;
+  }
+  if (type === 0x80 || (type === 0x90 && d2 === 0)){
+    const key = ch + ":" + d1;
+    if (S.active.has(key)) { release(ch, S.active.get(key)); S.active.delete(key); }
+    return;
+  }
+  if (type === 0xB0){
+    if (S.learning >= 0 && !CONTINUOUS_CC.has(d1) && d2 >= 64){
+      const k = S.learning; S.learning = -1;
+      S.slots[k].cc = d1; S.inst.clear(); renderSlots(); store.set();
+      monitor("키 " + (k + 1) + " = CC" + d1 + " 로 지정됨", "ok"); return;
+    }
+    const slot = S.slots.find(s => s.cc === d1 && s.role);
+    if (slot){
+      if (d2 >= 64) S.inst.add(slot.role); else S.inst.delete(slot.role);
+      remapHeld(); renderMods();
+      monitor("CC" + d1 + " = " + d2 + "  → " + ROLES.find(r => r[1] === slot.role)[0].split(" (")[0]);
+      return;
+    }
+    if (!CONTINUOUS_CC.has(d1)) monitor("CC" + d1 + " = " + d2);
+    send(ev.data);
+    if (S.mono && BREATH_CC.has(d1) && d2 === 0 && S.active.size) releaseAll(null);
+    return;
+  }
+  if (type === 0xA0){                                       // 폴리 애프터터치
+    const key = ch + ":" + d1;
+    if (S.active.has(key)) send([st, S.active.get(key), d2]);
+    return;
+  }
+  if (type === 0xC0) monitor("Program Change " + (d1 + 1));
+  send(ev.data);                                            // 피치벤드, 채널 프레셔 등은 그대로
+}
+
+/* ───────── 화면 ───────── */
+const $ = id => document.getElementById(id);
+const inSel = $("inSel"), outSel = $("outSel"), ksSel = $("ksSel"), big = $("big"), synthChk = $("synthChk");
+let lastMon = "";
+function monitor(t, cls){
+  if (t === lastMon) return; lastMon = t;
+  const el = $("mon"); el.textContent = (cls ? "" : "받은 신호(호흡 제외): ") + t;
+  el.style.color = cls === "ok" ? "var(--ok)" : cls === "warn" ? "var(--warn)" : "";
+}
+function show(t){ big.textContent = t; }
+function renderKeys(){
+  ksSel.value = S.ks;
+  $("keys").innerHTML = [...LETTERS].map((L, i) => {
+    const a = ksAcc(L, S.ks);
+    return `<div class="key${a ? " acc" : ""}"><small>${"ASDFGHJ"[i]}</small><b>${L}${accSym(a)}</b></div>`;
+  }).join("");
+}
+function renderMods(){
+  const m = [];
+  if (isNat()) m.push("♮ 조표 해제");
+  if (S.inst.has("sharp") || S.kmods.has("w")) m.push("♯");
+  if (S.inst.has("flat") || S.kmods.has("q")) m.push("♭");
+  $("mods").textContent = m.join("  ");
+}
+function renderSlots(){
+  S.slots.forEach((s, i) => {
+    $("cc" + i).textContent = "CC" + s.cc;
+    $("role" + i).value = s.role;
+  });
+}
+function setKs(k){ S.ks = Math.max(-7, Math.min(7, k)); renderKeys(); store.set(); }
+
+for (let k = -7; k <= 7; k++) ksSel.add(new Option(`${ksShort(k)}   (${MAJOR[k]} major / ${MINOR[k]} minor)`, k));
+for (let t = -12; t <= 12; t++) $("trSel").add(new Option((t > 0 ? "+" : "") + t + " 반음", t));
+for (let o = -3; o <= 3; o++) $("octSel").add(new Option((o > 0 ? "+" : "") + o, o));
+for (const i of [0, 1]) for (const [n, v] of ROLES) $("role" + i).add(new Option(n, v));
+
+ksSel.onchange = () => setKs(+ksSel.value);
+$("ksDown").onclick = () => setKs(S.ks - 1);
+$("ksUp").onclick = () => setKs(S.ks + 1);
+$("semiSel").onchange = e => { S.semi = e.target.value; store.set(); };
+$("trSel").onchange = e => { S.transpose = +e.target.value; store.set(); };
+$("octSel").onchange = e => { S.octave = +e.target.value; };
+$("fixChk").onchange = $("fixVal").onchange = () => {
+  const v = Math.max(1, Math.min(127, +$("fixVal").value || 100));
+  S.fixVel = $("fixChk").checked ? v : 0; store.set();
+};
+$("monoChk").onchange = e => { S.mono = e.target.checked; store.set(); };
+for (const i of [0, 1]) $("role" + i).onchange = e => { S.slots[i].role = e.target.value; S.inst.clear(); renderMods(); store.set(); };
+document.querySelectorAll("[data-learn]").forEach(b => b.onclick = () => {
+  const k = +b.dataset.learn; S.learning = k;
+  $("cc" + k).textContent = "대기…";
+  monitor("학습 중: 악기에서 키 " + (k + 1) + "로 쓸 키를 누르십시오", "warn");
+});
+
+/* ───────── MIDI 포트 ───────── */
+function fillPorts(){
+  const saved = store.get();
+  const ins = [...access.inputs.values()], outs = [...access.outputs.values()];
+  const keepIn = inSel.selectedOptions[0]?.textContent || saved.inName;
+  const keepOut = outSel.selectedOptions[0]?.textContent || saved.outName;
+  inSel.innerHTML = ""; outSel.innerHTML = "";
+  inSel.add(new Option("— 없음 (컴퓨터 키보드로 연주) —", ""));
+  outSel.add(new Option("— 없음 —", ""));
+  ins.forEach(p => inSel.add(new Option(p.name, p.id)));
+  outs.forEach(p => outSel.add(new Option(p.name, p.id)));
+  const pick = (sel, list, keep, words) => {
+    let p = list.find(x => x.name === keep) || list.find(x => words.some(w => x.name.toLowerCase().includes(w)));
+    if (p) sel.value = p.id;
+  };
+  pick(inSel, ins, keepIn, ["clarii", "robkoo", "나의프로", "aerophone", "ewi"]);
+  pick(outSel, outs, keepOut, ["iac", "버스", "bus"]);
+  connect();
+}
+function connect(){
+  if (inPort) inPort.onmidimessage = null;
+  inPort = access.inputs.get(inSel.value) || null;
+  outPort = access.outputs.get(outSel.value) || null;
+  if (inPort) inPort.onmidimessage = onMidi;
+  S.active.clear(); S.outCount.clear(); S.inst.clear();
+  const st = $("midiStatus");
+  const parts = [];
+  parts.push(inPort ? "입력: " + inPort.name : "입력 없음 — 컴퓨터 키보드로 연주");
+  parts.push(outPort ? "출력: " + outPort.name : (synthChk.checked ? "브라우저 소리로 출력" : "출력 없음"));
+  st.textContent = parts.join("   |   ");
+  st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
+  if (!outPort && !synthChk.checked && access.outputs.size === 0)
+    st.textContent += "  — IAC 드라이버를 켜 주십시오 (사용법 참고)";
+  store.set();
+}
+inSel.onchange = outSel.onchange = connect;
+synthChk.onchange = () => { synth.enable(synthChk.checked); connect(); };
+
+async function initMidi(){
+  const st = $("midiStatus");
+  if (!navigator.requestMIDIAccess){
+    st.textContent = "이 브라우저는 Web MIDI를 지원하지 않습니다. Mac/Windows의 Chrome 또는 Edge로 여십시오. (Safari·iPad·iPhone 불가)";
+    st.className = "status warn"; return;
+  }
+  try {
+    access = await navigator.requestMIDIAccess({ sysex: false });
+    access.onstatechange = () => fillPorts();
+    fillPorts();
+  } catch(e){
+    st.textContent = "MIDI 사용 권한이 거부되었습니다. 주소창 왼쪽 아이콘에서 MIDI 장치 접근을 허용한 뒤 새로고침하십시오.";
+    st.className = "status warn";
+  }
+}
+
+/* ───────── 컴퓨터 키보드 ───────── */
+const CODE = {KeyA:"a",KeyS:"s",KeyD:"d",KeyF:"f",KeyG:"g",KeyH:"h",KeyJ:"j",KeyK:"k",KeyL:"l",Semicolon:";",
+              KeyQ:"q",KeyW:"w",KeyE:"e",Digit0:"0",ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down",
+              PageUp:"pgup",PageDown:"pgdn",Escape:"esc"};
+const NOTE_KEYS = {a:0,s:1,d:2,f:3,g:4,h:5,j:6,k:7,l:8,";":9};
+const held = new Set();
+function kbNote(k){
+  const deg = NOTE_KEYS[k], L = LETTERS[deg % 7], oct = 4 + S.octave + Math.floor(deg / 7);
+  let acc = isNat() ? 0 : ksAcc(L, S.ks);
+  if (S.kmods.has("q")) acc -= 1;
+  if (S.kmods.has("w")) acc += 1;
+  const written = 12 * (oct + 1) + BASE[L] + acc, out = written + S.transpose;
+  if (out < 0 || out > 127) return;
+  const ch = 0; addOut(ch, out); noteOn(ch, out, S.fixVel || 100);
+  S.kbActive.set(k, {ch, out});
+  show(`${L}${accSym(acc)}${oct}   (MIDI ${written})` + (S.transpose ? `  → 실음 ${out}` : ""));
+}
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.matches("input[type=number]")) return;
+  const k = CODE[e.code]; if (!k) return;
+  e.preventDefault();
+  if (held.has(k)) return; held.add(k);
+  if ("qwe".includes(k) && k.length === 1){ S.kmods.add(k); remapHeld(); renderMods(); return; }
+  if (k in NOTE_KEYS){ if (!inPort) kbNote(k); return; }
+  if (k === "right") setKs(S.ks + 1);
+  else if (k === "left") setKs(S.ks - 1);
+  else if (k === "0") setKs(0);
+  else if (k === "up"){ S.octave = Math.min(3, S.octave + 1); $("octSel").value = S.octave; }
+  else if (k === "down"){ S.octave = Math.max(-3, S.octave - 1); $("octSel").value = S.octave; }
+  else if (k === "pgup"){ S.transpose = Math.min(12, S.transpose + 1); $("trSel").value = S.transpose; store.set(); }
+  else if (k === "pgdn"){ S.transpose = Math.max(-12, S.transpose - 1); $("trSel").value = S.transpose; store.set(); }
+  else if (k === "esc") allNotesOff();
+});
+document.addEventListener("keyup", e => {
+  const k = CODE[e.code]; if (!k) return;
+  held.delete(k);
+  if ("qwe".includes(k) && k.length === 1){ S.kmods.delete(k); remapHeld(); renderMods(); }
+  const a = S.kbActive.get(k); if (a){ S.kbActive.delete(k); release(a.ch, a.out); }
+});
+window.addEventListener("blur", () => { held.clear(); S.kmods.clear(); renderMods(); });
+
+/* ───────── 브라우저 내장 소리 (간단한 관악기풍 신스) ───────── */
+const synth = (() => {
+  let ctx = null, master, filter, on = false, breath = 1, sawBreath = false;
+  const voices = new Map();
+  const hz = n => 440 * Math.pow(2, (n - 69) / 12);
+  function ensure(){
+    if (ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 2400; filter.Q.value = 0.7;
+    master = ctx.createGain(); master.gain.value = 0.25;
+    filter.connect(master).connect(ctx.destination);
+  }
+  function setBreath(v){
+    breath = v / 127; sawBreath = true;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    master.gain.setTargetAtTime(0.32 * breath, t, 0.02);
+    filter.frequency.setTargetAtTime(500 + 3500 * breath, t, 0.03);
+  }
+  return {
+    enable(v){ on = v; if (v){ ensure(); ctx.resume(); } else { for (const [, g] of voices) g.stop(); voices.clear(); } },
+    handle(b){
+      if (!on || !ctx) return;
+      const type = b[0] & 0xF0, n = b[1], v = b[2];
+      if (type === 0x90 && v > 0){
+        if (voices.has(n)) voices.get(n).stop();
+        const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
+        o1.type = "sawtooth"; o2.type = "triangle";
+        o1.frequency.value = hz(n); o2.frequency.value = hz(n); o2.detune.value = 6;
+        const t = ctx.currentTime, lvl = sawBreath ? 0.5 : 0.5 * v / 127;
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(lvl, t + 0.03);
+        o1.connect(g); o2.connect(g); g.connect(filter); o1.start(); o2.start();
+        voices.set(n, { stop(){ const t2 = ctx.currentTime; g.gain.cancelScheduledValues(t2);
+          g.gain.setTargetAtTime(0, t2, 0.04); o1.stop(t2 + 0.3); o2.stop(t2 + 0.3); } });
+      } else if (type === 0x80 || (type === 0x90 && v === 0)){
+        const vc = voices.get(n); if (vc){ vc.stop(); voices.delete(n); }
+      } else if (type === 0xB0 && BREATH_CC.has(n)) setBreath(v);
+      else if (type === 0xB0 && n === 123){ for (const [, vc] of voices) vc.stop(); voices.clear(); }
+    }
+  };
+})();
+
+/* ───────── 테마 ───────── */
+$("themeBtn").onclick = () => {
+  const r = document.documentElement, dark = getComputedStyle(r).getPropertyValue("--bg").trim() === "#14171d";
+  r.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("keysig-theme", r.dataset.theme); } catch(e){}
+};
+try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentElement.dataset.theme = t; } catch(e){}
+
+/* ───────── 시작 ───────── */
+(function restore(){
+  const s = store.get();
+  if (typeof s.ks === "number") S.ks = s.ks;
+  if (typeof s.transpose === "number") S.transpose = s.transpose;
+  if (s.semi) S.semi = s.semi;
+  if (typeof s.fixVel === "number") S.fixVel = s.fixVel;
+  if (typeof s.mono === "boolean") S.mono = s.mono;
+  if (Array.isArray(s.slots) && s.slots.length === 2) S.slots = s.slots;
+  $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
+  $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
+  $("monoChk").checked = S.mono;
+  if (s.synth) synthChk.checked = true;
+  renderKeys(); renderSlots(); renderMods();
+})();
+document.addEventListener("pointerdown", () => { if (synthChk.checked) synth.enable(true); }, { once: true });
+initMidi();
+</script>
+</body>
+</html>
