@@ -53,6 +53,9 @@ button:active{transform:translateY(1px)}
 .mods{text-align:center;color:var(--sharp);min-height:22px;font-weight:600}
 .slot{display:grid;grid-template-columns:auto auto auto 1fr;gap:8px;align-items:center;margin:6px 0}
 .slot .cc{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;min-width:52px}
+.act{font-size:14px;color:var(--muted)}
+.led{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block;transition:background .15s}
+.led.on{background:var(--ok)}
 .mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
 details summary{cursor:pointer;color:var(--muted);font-size:17.5px}
 details p,details li{font-size:17.5px}
@@ -81,9 +84,36 @@ details p,details li{font-size:17.5px}
     <div class="row">
       <label for="outSel">출력 (Logic으로)</label>
       <select id="outSel"></select>
-      <label><input type="checkbox" id="synthChk"> 브라우저 내장 소리</label>
     </div>
     <div class="status" id="midiStatus">MIDI 준비 중…</div>
+    <div class="row act"><span class="led" id="ledIn"></span><span>악기 신호 수신</span>
+      <span class="led" id="ledNote"></span><span>음 수신</span>
+      <span class="status" id="lastIn">아직 받은 신호 없음</span></div>
+  </div>
+
+  <div class="card" id="soundCard">
+    <h2>내장 소리 (Logic 없이 연주)</h2>
+    <div class="row">
+      <label><input type="checkbox" id="synthChk"> 내장 소리 켜기</label>
+      <label for="volRng">음량</label>
+      <input type="range" id="volRng" min="0" max="100" value="70" style="flex:0 1 160px">
+    </div>
+    <div class="row">
+      <label for="sfSel">사운드</label>
+      <select id="sfSel">
+        <option value="default">기본 사운드폰트 (GeneralUser GS · 128 악기)</option>
+        <option value="user" disabled>내 sf2 (불러오지 않음)</option>
+        <option value="simple">간단한 합성음 (다운로드 없음)</option>
+      </select>
+      <button id="sfBtn">sf2 불러오기</button>
+      <input type="file" id="sfFile" accept=".sf2,.sf3" hidden>
+    </div>
+    <div class="row">
+      <label for="presetSel">악기</label>
+      <select id="presetSel"></select>
+      <button id="testBtn" title="브라우저 소리만으로 도-미-솔 재생">♪ 미리듣기</button>
+    </div>
+    <div class="status" id="sfStatus">내장 소리 꺼짐</div>
   </div>
 
   <div class="card">
@@ -141,6 +171,7 @@ details p,details li{font-size:17.5px}
         <li>Clarii를 <b>MIDI Mode</b>로 두고 USB(또는 블루투스)로 연결한 뒤 이 페이지를 엽니다. 입력에 Clarii, 출력에 <b>IAC 드라이버 버스 1</b>을 고릅니다.</li>
         <li><b>Logic Pro</b>: 설정 → MIDI → 입력에서 <b>Clarii 항목 체크 해제</b>, IAC 드라이버만 체크.<br>
             <b>MainStage</b>: 레이아웃 모드 → 건반 그림 → 입력을 <b>IAC 드라이버</b>로.</li>
+        <li><b>Logic 없이</b> 연주하려면 "내장 소리 켜기"를 체크하고 악기를 고릅니다. 처음 한 번 기본 사운드폰트(약 30MB)를 내려받고, 이후에는 브라우저에 저장됩니다. 다른 .sf2 파일은 [sf2 불러오기]로 넣을 수 있습니다. 이때 Logic으로 보내지 않으려면 출력을 "없음"으로 둡니다.</li>
         <li>조표를 고르고 연주합니다. ✱1 = ♮(조표 해제), ✱2 = ♯ 올림 (Clarii Controllers에서 ✱키를 Artl.로 설정).</li>
       </ol>
       <p class="help">컴퓨터 키보드(이 페이지가 앞에 있을 때): A S D F G H J = C D E F G A B, K L ; = 위 C D E,
@@ -189,7 +220,7 @@ const store = {
   set(){ try { localStorage.setItem("keysig", JSON.stringify({
       ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots,
       inName:inSel.selectedOptions[0]?.textContent, outName:outSel.selectedOptions[0]?.textContent,
-      synth:synthChk.checked })); } catch(e){} }
+      synth:synthChk.checked, sf:$("sfSel").value, preset:($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset), vol:+$("volRng").value })); } catch(e){} }
 };
 
 /* ───────── 음 계산 (keysig_midi.py v3.5 과 동일) ───────── */
@@ -258,9 +289,13 @@ function remapHeld(){
 }
 
 /* ───────── 악기 입력 ───────── */
+let ledT = {};
+function blink(id){ const el = $(id); el.classList.add("on"); clearTimeout(ledT[id]); ledT[id] = setTimeout(() => el.classList.remove("on"), 150); }
 function onMidi(ev){
   const [st, d1 = 0, d2 = 0] = ev.data, type = st & 0xF0, ch = st & 0x0F;
   if (st >= 0xF0) return;                                   // 클럭 등 무시
+  blink("ledIn");
+  if (type === 0x90 && d2 > 0){ blink("ledNote"); $("lastIn").textContent = "마지막 받은 음: " + CHROMA[d1 % 12] + (Math.floor(d1 / 12) - 1) + " (채널 " + (ch + 1) + ")"; }
   if (type === 0x90 && d2 > 0){
     const m = mapIn(d1); if (!m) return;
     const key = ch + ":" + d1;
@@ -386,7 +421,9 @@ function connect(){
   const st = $("midiStatus");
   const parts = [];
   parts.push(inPort ? "입력: " + inPort.name : "입력 없음 — 컴퓨터 키보드로 연주");
-  parts.push(outPort ? "출력: " + outPort.name : (synthChk.checked ? "브라우저 소리로 출력" : "출력 없음"));
+  parts.push(outPort ? "출력: " + outPort.name : "출력 포트 없음");
+  if (synthChk.checked) parts.push("내장 소리 켜짐");
+  if (synthChk.checked && outPort) parts.push("⚠ Logic 등으로도 소리가 나갑니다. 내장 소리만 들으려면 출력을 '없음'으로");
   st.textContent = parts.join("   |   ");
   st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
   if (!outPort && !synthChk.checked && access.outputs.size === 0)
@@ -394,7 +431,6 @@ function connect(){
   store.set();
 }
 inSel.onchange = outSel.onchange = connect;
-synthChk.onchange = () => { synth.enable(synthChk.checked); connect(); };
 
 async function initMidi(){
   const st = $("midiStatus");
@@ -454,45 +490,229 @@ document.addEventListener("keyup", e => {
 });
 window.addEventListener("blur", () => { held.clear(); S.kmods.clear(); renderMods(); });
 
-/* ───────── 브라우저 내장 소리 (간단한 관악기풍 신스) ───────── */
+/* ───────── 내장 소리: FluidSynth(js-synthesizer) + 사운드폰트 ───────── */
+const LIB = window.KEYSIG_LIB || {   // 고정 버전. 첫 주소가 안 되면 다음 주소를 시도
+  main:    ["https://cdn.jsdelivr.net/npm/js-synthesizer@1.13.0/dist/js-synthesizer.min.js",
+            "https://unpkg.com/js-synthesizer@1.13.0/dist/js-synthesizer.min.js"],
+  fluid:   ["https://cdn.jsdelivr.net/npm/js-synthesizer@1.13.0/externals/libfluidsynth-2.4.6.js",
+            "https://unpkg.com/js-synthesizer@1.13.0/externals/libfluidsynth-2.4.6.js"],
+  worklet: ["https://cdn.jsdelivr.net/npm/js-synthesizer@1.13.0/dist/js-synthesizer.worklet.min.js",
+            "https://unpkg.com/js-synthesizer@1.13.0/dist/js-synthesizer.worklet.min.js"],
+  sf2:     ["https://unpkg.com/generaluser@1.47.1/GeneralUser.sf2",
+            "https://cdn.jsdelivr.net/npm/generaluser@1.47.1/GeneralUser.sf2"],
+};
+const GM_KO = ["어쿠스틱 그랜드 피아노","브라이트 피아노","일렉트릭 그랜드 피아노","홍키통크 피아노","일렉트릭 피아노 1","일렉트릭 피아노 2","하프시코드","클라비넷",
+"첼레스타","글로켄슈필","뮤직박스","비브라폰","마림바","실로폰","튜뷸러 벨","덜시머",
+"드로바 오르간","퍼커시브 오르간","록 오르간","파이프 오르간","리드 오르간","아코디언","하모니카","탱고 아코디언",
+"나일론 기타","스틸 기타","재즈 기타","클린 일렉 기타","뮤트 기타","오버드라이브 기타","디스토션 기타","기타 하모닉스",
+"어쿠스틱 베이스","핑거 베이스","피크 베이스","프렛리스 베이스","슬랩 베이스 1","슬랩 베이스 2","신스 베이스 1","신스 베이스 2",
+"바이올린","비올라","첼로","콘트라베이스","트레몰로 현악","피치카토 현악","하프","팀파니",
+"현악 합주 1","현악 합주 2","신스 현악 1","신스 현악 2","합창 아","보이스 우","신스 보이스","오케스트라 히트",
+"트럼펫","트롬본","튜바","뮤트 트럼펫","호른","브라스 섹션","신스 브라스 1","신스 브라스 2",
+"소프라노 색소폰","알토 색소폰","테너 색소폰","바리톤 색소폰","오보에","잉글리시 호른","바순","클라리넷",
+"피콜로","플루트","리코더","팬 플루트","병 불기","샤쿠하치","휘슬","오카리나",
+"리드 1 (사각파)","리드 2 (톱니파)","리드 3 (칼리오페)","리드 4 (치프)","리드 5 (차랑)","리드 6 (보이스)","리드 7 (5도)","리드 8 (베이스+리드)",
+"패드 1 (뉴에이지)","패드 2 (웜)","패드 3 (폴리신스)","패드 4 (콰이어)","패드 5 (보우드)","패드 6 (메탈릭)","패드 7 (헤일로)","패드 8 (스윕)",
+"FX 1 (레인)","FX 2 (사운드트랙)","FX 3 (크리스털)","FX 4 (애트머스피어)","FX 5 (브라이트니스)","FX 6 (고블린)","FX 7 (에코)","FX 8 (SF)",
+"시타르","밴조","샤미센","고토","칼림바","백파이프","피들","샤나이",
+"틴클 벨","아고고","스틸 드럼","우드블록","타이코 드럼","멜로딕 탐","신스 드럼","리버스 심벌",
+"기타 프렛 노이즈","숨소리","파도","새소리","전화벨","헬리콥터","박수","총소리"];
+const WIND_FIRST = [65,64,66,67,71,73,72,68,69,70,74,75,79,77,78,76,56,59,57,58,60,61,22,21,40,41,42,43,48,52,80,81];
+
+const sfDB = {   // 사운드폰트를 브라우저에 보관 (다음에 다시 받지 않도록)
+  open(){ return new Promise((ok, no) => { const r = indexedDB.open("keysig-sf", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("sf"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); }); },
+  async get(k){ try { const db = await this.open(); return await new Promise(ok => {
+    const q = db.transaction("sf").objectStore("sf").get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch(e){ return null; } },
+  async put(k, v){ try { const db = await this.open(); db.transaction("sf", "readwrite").objectStore("sf").put(v, k); } catch(e){} }
+};
+function loadScript(urls){
+  return urls.reduce((p, u) => p.catch(() => new Promise((ok, no) => {
+    const el = document.createElement("script"); el.src = u; el.onload = ok; el.onerror = no; document.head.appendChild(el);
+  })), Promise.reject());
+}
+async function addModule(ctx, urls){
+  for (const u of urls) { try { await ctx.audioWorklet.addModule(u); return; } catch(e){} }
+  throw new Error("worklet");
+}
+async function fetchProgress(urls, onp){
+  for (const u of urls) {
+    try {
+      const res = await fetch(u); if (!res.ok) continue;
+      const total = +res.headers.get("content-length") || 31281186, reader = res.body.getReader();
+      const chunks = []; let got = 0;
+      for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); got += value.length; onp(got / total); }
+      const buf = new Uint8Array(got); let o = 0; for (const c of chunks) { buf.set(c, o); o += c.length; }
+      return buf.buffer;
+    } catch(e){}
+  }
+  throw new Error("download");
+}
+
 const synth = (() => {
-  let ctx = null, master, filter, on = false, breath = 1, sawBreath = false;
-  const voices = new Map();
-  const hz = n => 440 * Math.pow(2, (n - 69) / 12);
-  function ensure(){
+  let ctx = null, gainNode = null, fs = null, fsReady = null, on = false;
+  const ids = { default: null, user: null };
+  let presets = [];                          // {bank, num, name, sf}
+  const sounding = [];                       // 채널별로 울리고 있는 음
+  const simple = { voices: new Map(), filter: null, master: null, breath: false };
+  const $st = () => $("sfStatus");
+  const status = (t, cls) => { $st().textContent = t; $st().className = "status" + (cls ? " " + cls : ""); };
+  const mode = () => $("sfSel").value;
+
+  function ensureCtx(){
     if (ctx) return;
-    ctx = new (window.AudioContext || window.webkitAudioContext)();
-    filter = ctx.createBiquadFilter(); filter.type = "lowpass"; filter.frequency.value = 2400; filter.Q.value = 0.7;
-    master = ctx.createGain(); master.gain.value = 0.25;
-    filter.connect(master).connect(ctx.destination);
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: "interactive" });
+    gainNode = ctx.createGain(); gainNode.connect(ctx.destination); setVol();
+    simple.filter = ctx.createBiquadFilter(); simple.filter.type = "lowpass"; simple.filter.frequency.value = 2400;
+    simple.master = ctx.createGain(); simple.master.gain.value = 0.3; simple.filter.connect(simple.master).connect(gainNode);
   }
-  function setBreath(v){
-    breath = v / 127; sawBreath = true;
-    if (!ctx) return;
-    const t = ctx.currentTime;
-    master.gain.setTargetAtTime(0.32 * breath, t, 0.02);
-    filter.frequency.setTargetAtTime(500 + 3500 * breath, t, 0.03);
+  function setVol(){ if (gainNode) gainNode.gain.value = Math.pow(+$("volRng").value / 100, 1.5) * 1.6; }
+
+  function startFluid(){
+    if (fsReady) return fsReady;
+    fsReady = (async () => {
+      status("소리 엔진 불러오는 중…");
+      await loadScript(LIB.main);
+      await addModule(ctx, LIB.fluid);
+      await addModule(ctx, LIB.worklet);
+      fs = new JSSynth.AudioWorkletNodeSynthesizer();
+      fs.init(ctx.sampleRate);
+      const node = fs.createAudioNode(ctx, { midiChannelCount: 16, reverbActive: true, chorusActive: false });
+      node.connect(gainNode);
+    })();
+    fsReady.catch(() => { fsReady = null; status("소리 엔진을 불러오지 못했습니다. 인터넷 연결을 확인하십시오.", "warn"); });
+    return fsReady;
   }
+  async function ensureFont(which){
+    await startFluid();
+    if (ids[which] !== null) return ids[which];
+    let buf = await sfDB.get(which);
+    if (!buf && which === "default") {
+      buf = await fetchProgress(LIB.sf2, p => status("기본 사운드폰트 내려받는 중… " + Math.min(99, Math.round(p * 100)) + "%  (처음 한 번, 약 30MB)"));
+      sfDB.put("default", buf);
+    }
+    if (!buf) throw new Error("nofont");
+    const data = buf.data || buf;            // user: {data, name}
+    ids[which] = await fs.loadSFont(data);
+    return ids[which];
+  }
+  async function listPresets(which){
+    const id = await ensureFont(which);
+    const sf = await fs.getSFontObject(id);
+    const arr = [...(await sf.getPresetIterable())].map(p => ({ bank: p.bankNum, num: p.num, name: p.name, sf: id }));
+    arr.sort((a, b) => a.bank - b.bank || a.num - b.num);
+    return arr;
+  }
+  function fillPresets(arr, keep){
+    presets = arr;
+    const sel = $("presetSel"); sel.innerHTML = "";
+    const isGM = mode() === "default";
+    const label = p => (p.bank === 0 && isGM ? `${p.num + 1}. ${GM_KO[p.num]}  (${p.name})` : `${p.bank}:${p.num + 1}  ${p.name}`);
+    const melodic = arr.filter(p => p.bank < 120);
+    const wind = isGM ? WIND_FIRST.map(n => melodic.find(p => p.bank === 0 && p.num === n)).filter(Boolean) : [];
+    if (wind.length) {
+      const g = document.createElement("optgroup"); g.label = "관악기·자주 쓰는 악기";
+      wind.forEach(p => g.appendChild(new Option(label(p), p.bank + ":" + p.num))); sel.appendChild(g);
+    }
+    const g2 = document.createElement("optgroup"); g2.label = isGM ? "전체 128 악기 (GM)" : "전체 악기";
+    melodic.forEach(p => g2.appendChild(new Option(label(p), p.bank + ":" + p.num))); sel.appendChild(g2);
+    const want = keep || (isGM ? "0:65" : melodic[0] && melodic[0].bank + ":" + melodic[0].num);
+    if ([...sel.options].some(o => o.value === want)) sel.value = want;
+    applyPreset();
+  }
+  function applyPreset(){
+    if (!fs || !presets.length) return;
+    const [bank, num] = $("presetSel").value.split(":").map(Number);
+    const p = presets.find(x => x.bank === bank && x.num === num); if (!p) return;
+    for (let ch = 0; ch < 16; ch++) { fs.midiSetChannelType(ch, false); fs.midiProgramSelect(ch, p.sf, p.bank, p.num); }
+    status("소리: " + $("presetSel").selectedOptions[0].textContent, "ok");
+  }
+  async function switchSource(keep){
+    if (!on) return;
+    ensureCtx(); await ctx.resume();
+    if (mode() === "simple") { presets = []; $("presetSel").innerHTML = "<option>간단한 합성음</option>"; status("소리: 간단한 합성음", "ok"); return; }
+    try { fillPresets(await listPresets(mode()), keep); }
+    catch(e){ if (fsReady) status(mode() === "user" ? "내 sf2를 다시 불러와 주십시오." : "기본 사운드폰트를 내려받지 못했습니다. 인터넷 연결을 확인하거나 sf2를 직접 불러오십시오.", "warn"); }
+  }
+  async function loadUserFile(file){
+    const data = await file.arrayBuffer();
+    on = true; synthChk.checked = true; ensureCtx(); await ctx.resume();
+    try {
+      await startFluid();
+      if (ids.user !== null) { try { fs.unloadSFont(ids.user); } catch(e){} ids.user = null; }
+      await sfDB.put("user", { data, name: file.name });
+      ids.user = await fs.loadSFont(data);
+      const o = $("sfSel").querySelector('option[value="user"]'); o.disabled = false; o.textContent = "내 sf2: " + file.name;
+      $("sfSel").value = "user"; await switchSource(); store.set(); connect();
+    } catch(e){ status("sf2 파일을 읽지 못했습니다: " + file.name, "warn"); }
+  }
+
+  /* 간단한 합성음 (다운로드 없이) */
+  function simpleHandle(b){
+    const type = b[0] & 0xF0, n = b[1], v = b[2], hz = 440 * Math.pow(2, (n - 69) / 12);
+    if (type === 0x90 && v > 0) {
+      simple.voices.get(n)?.stop();
+      const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+      o1.type = "sawtooth"; o2.type = "triangle"; o1.frequency.value = o2.frequency.value = hz; o2.detune.value = 6;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(simple.breath ? 0.5 : 0.5 * v / 127, t + 0.03);
+      o1.connect(g); o2.connect(g); g.connect(simple.filter); o1.start(); o2.start();
+      simple.voices.set(n, { stop(){ const t2 = ctx.currentTime; g.gain.cancelScheduledValues(t2); g.gain.setTargetAtTime(0, t2, 0.04); o1.stop(t2 + .3); o2.stop(t2 + .3); } });
+    } else if (type === 0x80 || (type === 0x90 && v === 0)) { simple.voices.get(n)?.stop(); simple.voices.delete(n); }
+    else if (type === 0xB0 && BREATH_CC.has(n)) {
+      simple.breath = true; const t = ctx.currentTime, x = v / 127;
+      simple.master.gain.setTargetAtTime(0.38 * x, t, 0.02); simple.filter.frequency.setTargetAtTime(500 + 3500 * x, t, 0.03);
+    } else if (type === 0xB0 && n === 123) { for (const [, vc] of simple.voices) vc.stop(); simple.voices.clear(); }
+  }
+
   return {
-    enable(v){ on = v; if (v){ ensure(); ctx.resume(); } else { for (const [, g] of voices) g.stop(); voices.clear(); } },
+    enable(v){
+      on = v;
+      if (v) { ensureCtx(); ctx.resume(); switchSource($("presetSel").value || store.get().preset); }
+      else { if (fs) fs.midiAllNotesOff(); for (const [, vc] of simple.voices) vc.stop(); simple.voices.clear(); status("내장 소리 꺼짐"); }
+    },
     handle(b){
       if (!on || !ctx) return;
-      const type = b[0] & 0xF0, n = b[1], v = b[2];
-      if (type === 0x90 && v > 0){
-        if (voices.has(n)) voices.get(n).stop();
-        const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain();
-        o1.type = "sawtooth"; o2.type = "triangle";
-        o1.frequency.value = hz(n); o2.frequency.value = hz(n); o2.detune.value = 6;
-        const t = ctx.currentTime, lvl = sawBreath ? 0.5 : 0.5 * v / 127;
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(lvl, t + 0.03);
-        o1.connect(g); o2.connect(g); g.connect(filter); o1.start(); o2.start();
-        voices.set(n, { stop(){ const t2 = ctx.currentTime; g.gain.cancelScheduledValues(t2);
-          g.gain.setTargetAtTime(0, t2, 0.04); o1.stop(t2 + 0.3); o2.stop(t2 + 0.3); } });
-      } else if (type === 0x80 || (type === 0x90 && v === 0)){
-        const vc = voices.get(n); if (vc){ vc.stop(); voices.delete(n); }
-      } else if (type === 0xB0 && BREATH_CC.has(n)) setBreath(v);
-      else if (type === 0xB0 && n === 123){ for (const [, vc] of voices) vc.stop(); voices.clear(); }
-    }
+      if (mode() === "simple") return simpleHandle(b);
+      if (!fs) return;
+      const type = b[0] & 0xF0, ch = b[0] & 0x0F, d1 = b[1], d2 = b[2];
+      const snd = sounding[ch] || (sounding[ch] = new Set());
+      if (type === 0x90 && d2 > 0) {
+        if (S.mono) { for (const n of snd) if (n !== d1) fs.midiNoteOff(ch, n); snd.clear(); }  // 단음: 이전 음을 먼저 끔
+        fs.midiNoteOn(ch, d1, d2); snd.add(d1);
+      }
+      else if (type === 0x80 || type === 0x90) { fs.midiNoteOff(ch, d1); snd.delete(d1); }
+      else if (type === 0xB0) {
+        if (d1 === 123) { fs.midiAllNotesOff(ch); (sounding[ch] || new Set()).clear(); return; }
+        if (d1 === 0 || d1 === 32 || d1 === 121) return;   // 뱅크 선택·컨트롤러 리셋은 무시 (고른 악기 유지)
+        if (d1 === 64 || d1 === 65 || d1 === 66 || d1 === 68 || d1 === 84 || d1 === 126 || d1 === 127) return; // 서스테인·포르타멘토·레가토·모노/폴리 신호 무시 (음이 겹치지 않게)
+        fs.midiControl(ch, d1 === 2 ? 11 : d1, d2);   // CC2(브레스)는 익스프레션으로 바꿔 크기 조절
+      }
+      else if (type === 0xE0) fs.midiPitchBend(ch, (d2 << 7) | d1);
+      else if (type === 0xD0) fs.midiChannelPressure(ch, d1);
+      else if (type === 0xA0) fs.midiKeyPressure(ch, d1, d2);
+    },
+    initUI(){
+      const saved = store.get();
+      if (typeof saved.vol === "number") $("volRng").value = saved.vol;
+      sfDB.get("user").then(u => { if (u && u.name) { const o = $("sfSel").querySelector('option[value="user"]'); o.disabled = false; o.textContent = "내 sf2: " + u.name;
+        if (saved.sf === "user") $("sfSel").value = "user"; } });
+      if (saved.sf && saved.sf !== "user") $("sfSel").value = saved.sf;
+      synthChk.onchange = () => { synth.enable(synthChk.checked); store.set(); connect(); };
+      $("volRng").oninput = () => { setVol(); store.set(); };
+      $("sfSel").onchange = () => { store.set(); switchSource(); };
+      $("presetSel").onchange = () => { applyPreset(); store.set(); };
+      $("sfBtn").onclick = () => $("sfFile").click();
+      $("testBtn").onclick = async () => {
+        if (!synthChk.checked) { synthChk.checked = true; synth.enable(true); store.set(); connect(); }
+        await (fsReady || Promise.resolve()).catch(() => {});
+        const play = (n, t) => setTimeout(() => { this.handle([0xB0, 7, 110]); this.handle([0x90, n, 100]);
+          setTimeout(() => this.handle([0x80, n, 0]), 380); }, t);
+        play(60, 0); play(64, 420); play(67, 840);
+      };
+      $("sfFile").onchange = e => { const f = e.target.files[0]; if (f) loadUserFile(f); e.target.value = ""; };
+      if (synthChk.checked) status("화면을 한 번 클릭하면 내장 소리가 켜집니다");
+    },
+    _test: () => ({ fs, ctx, gainNode }),
   };
 })();
 
@@ -519,6 +739,7 @@ try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentEl
   if (s.synth) synthChk.checked = true;
   renderKeys(); renderSlots(); renderMods();
 })();
+synth.initUI();
 document.addEventListener("pointerdown", () => { if (synthChk.checked) synth.enable(true); }, { once: true });
 initMidi();
 </script>
