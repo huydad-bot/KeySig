@@ -56,6 +56,27 @@ button:active{transform:translateY(1px)}
 .act{font-size:14px;color:var(--muted)}
 .led{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block;transition:background .15s}
 .led.on{background:var(--ok)}
+.kbwrap{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;align-items:flex-start}
+.kb{display:flex;flex-direction:column;gap:5px}
+.kbrow{display:flex;gap:5px}
+.kk{width:52px;height:56px;border:1px solid var(--line);border-radius:7px;background:var(--card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:var(--muted);line-height:1.15}
+.kk b{font-size:13px;color:var(--muted);font-weight:600}
+.kk span{font-size:15px;font-weight:700;color:var(--ink)}
+.kk.note{background:color-mix(in srgb, var(--accent) 16%, var(--card));border-color:var(--accent)}
+.kk.note.acc span{color:var(--sharp)}
+.kk.mod{background:color-mix(in srgb, var(--sharp) 14%, var(--card));border-color:var(--sharp)}
+.kk.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
+.kk.blank{opacity:.35}
+.kk.wide{width:84px}
+.kk.down{transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--ink)}
+.kbside{display:grid;grid-template-columns:repeat(3,64px);gap:5px}
+.kbside .kk{width:64px}
+.kblegend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:14px;color:var(--muted)}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1px solid}
+.sw.note{background:color-mix(in srgb, var(--accent) 16%, var(--card));border-color:var(--accent)}
+.sw.mod{background:color-mix(in srgb, var(--sharp) 14%, var(--card));border-color:var(--sharp)}
+.sw.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
 .mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
 details summary{cursor:pointer;color:var(--muted);font-size:17.5px}
 details p,details li{font-size:17.5px}
@@ -168,6 +189,22 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <select id="octSel" style="flex:0 1 110px"></select>
     </div>
     <div class="mon" id="mon">받은 신호(호흡 제외): 없음</div>
+  </div>
+
+  <div class="card">
+    <details id="kbDetails">
+      <summary>컴퓨터 키보드 배치 (악기가 연결되지 않았을 때 연주용)</summary>
+      <div class="kbwrap">
+        <div class="kb" id="kb"></div>
+        <div class="kbside" id="kbside"></div>
+      </div>
+      <div class="kblegend">
+        <span><i class="sw note"></i>연주 (음 이름은 현재 조표·옥타브 기준)</span>
+        <span><i class="sw mod"></i>누르고 있는 동안 ♭ / ♯ / ♮</span>
+        <span><i class="sw ctl"></i>조작</span>
+      </div>
+      <p class="help">이 페이지가 앞에 있을 때 작동합니다. 악기(Clarii)가 입력으로 연결되어 있으면 키보드로는 음이 나지 않고 빨간·초록 키(조작)만 작동합니다. 맥북에서 PgUp = fn+↑, PgDn = fn+↓.</p>
+    </details>
   </div>
 
   <div class="card">
@@ -361,6 +398,7 @@ function renderKeys(){
     const a = ksAcc(L, S.ks);
     return `<div class="key${a ? " acc" : ""}"><small>${"ASDFGHJ"[i]}</small><b>${L}${accSym(a)}</b></div>`;
   }).join("");
+  if (typeof renderKb === "function" && $("kb")) renderKb();
 }
 function renderMods(){
   const m = [];
@@ -377,6 +415,36 @@ function renderSlots(){
 }
 function setKs(k){ S.ks = Math.max(-7, Math.min(7, k)); renderKeys(); store.set(); }
 
+/* 컴퓨터 키보드 배치 그림 */
+const KB_ROWS = [
+  [["Esc","esc","모든 음\n끄기","ctl"],["1"],["2"],["3"],["4"],["5"],["6"],["7"],["8"],["9"],["0","0","조표\nOff","ctl"]],
+  [["Q","q","♭","mod"],["W","w","♯","mod"],["E","e","♮","mod"],["R"],["T"],["Y"],["U"],["I"],["O"],["P"]],
+  [["A","a"],["S","s"],["D","d"],["F","f"],["G","g"],["H","h"],["J","j"],["K","k"],["L","l"],[";",";"]],
+  [["Z"],["X"],["C"],["V"],["B"],["N"],["M"]],
+];
+const KB_SIDE = [
+  ["PgUp","pgup","이조\n+1","ctl"],["↑","up","옥타브\n+1","ctl"],["",""],
+  ["PgDn","pgdn","이조\n−1","ctl"],["↓","down","옥타브\n−1","ctl"],["",""],
+  ["←","left","♭쪽\n조표","ctl"],["",""],["→","right","♯쪽\n조표","ctl"],
+];
+function kbLabel(k){
+  if (!(k in NOTE_KEYS)) return null;
+  const deg = NOTE_KEYS[k], L = LETTERS[deg % 7], oct = 4 + S.octave + Math.floor(deg / 7), a = ksAcc(L, S.ks);
+  return { txt: L + accSym(a) + oct, acc: !!a };
+}
+function kkHtml([cap, k, txt, cls]){
+  if (cap === "") return `<div></div>`;
+  const n = k ? kbLabel(k) : null;
+  if (n) return `<div class="kk note${n.acc ? " acc" : ""}" data-k="${k}"><b>${cap}</b><span>${n.txt}</span></div>`;
+  if (cls) return `<div class="kk ${cls}${cap.length > 2 ? " wide" : ""}" data-k="${k}"><b>${cap}</b><span style="font-size:12px;white-space:pre-line;text-align:center">${txt}</span></div>`;
+  return `<div class="kk blank"><b>${cap}</b></div>`;
+}
+function renderKb(){
+  $("kb").innerHTML = KB_ROWS.map((r, i) => `<div class="kbrow" style="margin-left:${[0, 26, 40, 66][i]}px">${r.map(kkHtml).join("")}</div>`).join("");
+  $("kbside").innerHTML = KB_SIDE.map(kkHtml).join("");
+}
+function kbDown(k, on){ document.querySelectorAll(`.kk[data-k="${CSS.escape(k)}"]`).forEach(el => el.classList.toggle("down", on)); }
+
 for (let k = -7; k <= 7; k++) ksSel.add(new Option(`${ksShort(k)}   (${MAJOR[k]} major / ${MINOR[k]} minor)`, k));
 for (let t = -12; t <= 12; t++) $("trSel").add(new Option((t > 0 ? "+" : "") + t + " 반음", t));
 for (let o = -3; o <= 3; o++) $("octSel").add(new Option((o > 0 ? "+" : "") + o, o));
@@ -387,7 +455,7 @@ $("ksDown").onclick = () => setKs(S.ks - 1);
 $("ksUp").onclick = () => setKs(S.ks + 1);
 $("semiSel").onchange = e => { S.semi = e.target.value; store.set(); };
 $("trSel").onchange = e => { S.transpose = +e.target.value; store.set(); };
-$("octSel").onchange = e => { S.octave = +e.target.value; };
+$("octSel").onchange = e => { S.octave = +e.target.value; renderKb(); };
 $("fixChk").onchange = $("fixVal").onchange = () => {
   const v = Math.max(1, Math.min(127, +$("fixVal").value || 100));
   S.fixVel = $("fixChk").checked ? v : 0; store.set();
@@ -477,25 +545,25 @@ document.addEventListener("keydown", e => {
   if (e.target.matches("input[type=number]")) return;
   const k = CODE[e.code]; if (!k) return;
   e.preventDefault();
-  if (held.has(k)) return; held.add(k);
+  if (held.has(k)) return; held.add(k); kbDown(k, true);
   if ("qwe".includes(k) && k.length === 1){ S.kmods.add(k); remapHeld(); renderMods(); return; }
   if (k in NOTE_KEYS){ if (!inPort) kbNote(k); return; }
   if (k === "right") setKs(S.ks + 1);
   else if (k === "left") setKs(S.ks - 1);
   else if (k === "0") setKs(0);
-  else if (k === "up"){ S.octave = Math.min(3, S.octave + 1); $("octSel").value = S.octave; }
-  else if (k === "down"){ S.octave = Math.max(-3, S.octave - 1); $("octSel").value = S.octave; }
+  else if (k === "up"){ S.octave = Math.min(3, S.octave + 1); $("octSel").value = S.octave; renderKb(); }
+  else if (k === "down"){ S.octave = Math.max(-3, S.octave - 1); $("octSel").value = S.octave; renderKb(); }
   else if (k === "pgup"){ S.transpose = Math.min(12, S.transpose + 1); $("trSel").value = S.transpose; store.set(); }
   else if (k === "pgdn"){ S.transpose = Math.max(-12, S.transpose - 1); $("trSel").value = S.transpose; store.set(); }
   else if (k === "esc") allNotesOff();
 });
 document.addEventListener("keyup", e => {
   const k = CODE[e.code]; if (!k) return;
-  held.delete(k);
+  held.delete(k); kbDown(k, false);
   if ("qwe".includes(k) && k.length === 1){ S.kmods.delete(k); remapHeld(); renderMods(); }
   const a = S.kbActive.get(k); if (a){ S.kbActive.delete(k); release(a.ch, a.out); }
 });
-window.addEventListener("blur", () => { held.clear(); S.kmods.clear(); renderMods(); });
+window.addEventListener("blur", () => { held.clear(); S.kmods.clear(); renderMods(); document.querySelectorAll(".kk.down").forEach(el => el.classList.remove("down")); });
 
 /* ───────── 내장 소리: FluidSynth(js-synthesizer) + 사운드폰트 ───────── */
 const LIB = window.KEYSIG_LIB || {   // 고정 버전. 첫 주소가 안 되면 다음 주소를 시도
@@ -754,6 +822,8 @@ const HELP = {
   "#octSel": "컴퓨터 키보드로 연주할 때의 옥타브입니다.",
   "#mon": "악기에서 받은 신호(숨 제외)를 보여 줍니다.\n✱ 키 신호가 오는지 확인할 때 씁니다.",
   "#themeBtn": "밝은 화면 / 어두운 화면을 바꿉니다.",
+  "#kb": "파란 키 = 연주(현재 조표·옥타브가 적용된 음), 빨간 키 = 누르고 있는 동안 ♭·♯·♮, 초록 키 = 조작.\n키를 누르면 그림에서도 눌린 것이 표시됩니다.",
+  "#kbside": "↑↓ 옥타브, PgUp/PgDn 이조, ←→ 조표 변경.\n(맥북: PgUp = fn+↑, PgDn = fn+↓)",
 };
 for (const [sel, txt] of Object.entries(HELP)) document.querySelectorAll(sel).forEach(el => el.dataset.help = txt);
 (() => {
