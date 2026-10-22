@@ -36,7 +36,10 @@ main{max-width:860px;margin:0 auto;padding:16px}
 h1{font-size:27.5px;margin:4px 0 2px}
 .sub{color:var(--muted);margin:0 0 14px;font-size:16.2px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
-.card h2{font-size:17.5px;margin:0 0 10px;color:var(--muted);font-weight:600;letter-spacing:.02em}
+.card h2{font-size:20px;margin:0 0 10px;color:var(--accent);font-weight:700;letter-spacing:.01em}
+.card:not(.ks-card) h2{display:flex;align-items:center;gap:9px}
+.card:not(.ks-card) h2::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent);flex:none;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 .row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:6px 0}
 label{font-size:17.5px}
 select,input[type=number]{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);
@@ -92,7 +95,7 @@ button:active{transform:translateY(1px)}
 .sw.mod{background:color-mix(in srgb, var(--sharp) 14%, var(--card));border-color:var(--sharp)}
 .sw.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
 .mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
-details summary{cursor:pointer;color:var(--muted);font-size:17.5px}
+details summary{cursor:pointer;color:var(--accent);font-size:20px;font-weight:700}
 details p,details li{font-size:17.5px}
 .help{color:var(--muted);font-size:16.2px}
 .theme{float:right;margin-left:6px}
