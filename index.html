@@ -60,7 +60,12 @@ button:active{transform:translateY(1px)}
 details summary{cursor:pointer;color:var(--muted);font-size:17.5px}
 details p,details li{font-size:17.5px}
 .help{color:var(--muted);font-size:16.2px}
-.theme{float:right}
+.theme{float:right;margin-left:6px}
+.helpbtn{float:right;font-weight:600}
+.helpbtn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cursor:help}
+#tip{position:fixed;z-index:50;max-width:420px;background:var(--ink);color:var(--bg);padding:9px 13px;border-radius:9px;
+  font-size:19px;line-height:1.45;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;white-space:pre-line}
 @media (max-width:560px){
   .slot{grid-template-columns:1fr auto; }
   .slot select{grid-column:1 / -1}
@@ -72,6 +77,8 @@ details p,details li{font-size:17.5px}
 <body>
 <main>
   <button class="theme" id="themeBtn" title="밝게/어둡게">◐</button>
+  <button class="helpbtn" id="helpBtn" title="켜면 각 항목에 마우스를 올렸을 때 설명이 나옵니다">? 설명</button>
+  <div id="tip"></div>
   <h1>KeySig MIDI</h1>
   <p class="sub">자연음 운지로 연주하면 조표의 ♯/♭이 자동 적용되어 Logic Pro·MainStage로 전달됩니다. (Chrome·Edge 전용)</p>
 
@@ -86,7 +93,7 @@ details p,details li{font-size:17.5px}
       <select id="outSel"></select>
     </div>
     <div class="status" id="midiStatus">MIDI 준비 중…</div>
-    <div class="row act"><span class="led" id="ledIn"></span><span>악기 신호 수신</span>
+    <div class="row act" id="actRow"><span class="led" id="ledIn"></span><span>악기 신호 수신</span>
       <span class="led" id="ledNote"></span><span>음 수신</span>
       <span class="status" id="lastIn">아직 받은 신호 없음</span></div>
   </div>
@@ -714,6 +721,59 @@ const synth = (() => {
     },
     _test: () => ({ fs, ctx, gainNode }),
   };
+})();
+
+/* ───────── 항목 설명 (설명 버튼을 켰을 때만) ───────── */
+const HELP = {
+  "#inSel": "악기(Clarii 등)를 고릅니다.\nUSB면 \"Clarii PRO\", 블루투스면 \"…Bluetooth\".\n\"없음\"이면 컴퓨터 키보드로 연주합니다.",
+  "#outSel": "조표가 적용된 음을 보낼 곳입니다.\nLogic·MainStage로 보내려면 \"IAC 드라이버 버스 1\".\n내장 소리만 쓸 때는 \"없음\".",
+  "#midiStatus": "현재 입력·출력 연결 상태입니다.\n초록색이면 정상입니다.",
+  "#actRow": "악기에서 신호가 오면 초록 불이 깜빡입니다.\n\"음 수신\"이 안 깜빡이면 입력 기기·권한(허용)을 확인하십시오.",
+  "#synthChk": "브라우저에서 직접 소리를 냅니다 (Logic 불필요).\n처음 한 번 사운드폰트(약 30MB)를 내려받습니다.",
+  "#volRng": "내장 소리의 전체 음량입니다.\n연주 중 크기는 숨 세기로 조절됩니다.",
+  "#sfSel": "소리 종류를 고릅니다.\n기본(GeneralUser GS 128 악기) / 내가 불러온 sf2 / 간단한 합성음.",
+  "#sfBtn": "내려받은 .sf2 파일을 불러옵니다 (.sf3·zip 불가).\n한 번 불러오면 저장되어 다음에도 쓸 수 있습니다.",
+  "#presetSel": "연주할 악기를 고릅니다.\n위쪽에 관악기가 먼저 나옵니다.",
+  "#testBtn": "브라우저 소리만으로 도·미·솔을 재생합니다.\n악기 소리가 제대로 바뀌는지 확인할 때 씁니다.",
+  "#ksDown": "조표를 ♭ 쪽으로 하나 옮깁니다 (키보드 ←).",
+  "#ksUp": "조표를 ♯ 쪽으로 하나 옮깁니다 (키보드 →).",
+  "#ksSel": "악보의 조표를 고릅니다.\n예: ♭ 4개 = A♭장조 / F단조. 0 키 = Off.",
+  "#keys": "자연음 운지가 실제로 내는 음입니다.\n빨간 글자가 조표가 붙는 음입니다.\n(위 작은 글자: 컴퓨터 키보드 키)",
+  "#big": "방금 연주한 음과 MIDI 번호입니다.",
+  "#mods": "지금 적용 중인 ♮·♯·♭ 키 상태입니다.",
+  "#semiSel": "LP1·LP2 같은 반음 키 결과를 어떻게 볼지 정합니다.\n\"자동\" 권장: ♭조에서는 D+LP1 → D♮처럼 조표 음 기준으로 처리.",
+  "#cc0": "악기 키 1(✱1)이 보내는 신호 번호입니다.",
+  "#cc1": "악기 키 2(✱2)가 보내는 신호 번호입니다.",
+  "[data-learn]": "누른 뒤 악기의 키를 누르면 그 신호 번호로 자동 지정됩니다.",
+  "#role0": "✱1 키를 누르는 동안의 역할입니다.\n♮ = 조표 해제, ♯ = 반음 올림, ♭ = 반음 내림.\n(Clarii: MIDI Mode + ✱키를 Artl.로 설정)",
+  "#role1": "✱2 키를 누르는 동안의 역할입니다.\n예: A♭장조에서 E 운지 + ✱2(♯) → E♮.",
+  "#fixChk": "켜면 텅잉 세기와 관계없이 일정한 세기로 보냅니다.\n(관악기 권장, MIDI 건반은 끄기)",
+  "#fixVal": "고정할 세기 값 (1~127).",
+  "#monoChk": "한 번에 한 음만 냅니다.\n이전 음이 남거나 겹치는 것을 막습니다 (관악기 권장).",
+  "#trSel": "모든 음을 반음 단위로 옮깁니다 (조표 적용 후).",
+  "#octSel": "컴퓨터 키보드로 연주할 때의 옥타브입니다.",
+  "#mon": "악기에서 받은 신호(숨 제외)를 보여 줍니다.\n✱ 키 신호가 오는지 확인할 때 씁니다.",
+  "#themeBtn": "밝은 화면 / 어두운 화면을 바꿉니다.",
+};
+for (const [sel, txt] of Object.entries(HELP)) document.querySelectorAll(sel).forEach(el => el.dataset.help = txt);
+(() => {
+  const tip = $("tip"), btn = $("helpBtn");
+  let on = false;
+  const setOn = v => { on = v; document.body.classList.toggle("help-on", v); btn.classList.toggle("on", v);
+    btn.textContent = v ? "✓ 설명 켜짐" : "? 설명"; if (!v) tip.style.display = "none"; };
+  btn.onclick = () => setOn(!on);
+  document.addEventListener("mousemove", e => {
+    if (!on) return;
+    const el = e.target.closest && e.target.closest("[data-help]");
+    if (!el) { tip.style.display = "none"; return; }
+    tip.textContent = el.dataset.help; tip.style.display = "block";
+    const w = tip.offsetWidth, h = tip.offsetHeight, z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    let x = e.clientX / z + 14, y = e.clientY / z + 16;
+    if (x + w > innerWidth / z - 8) x = e.clientX / z - w - 14;
+    if (y + h > innerHeight / z - 8) y = e.clientY / z - h - 12;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  });
+  document.addEventListener("mouseleave", () => tip.style.display = "none");
 })();
 
 /* ───────── 테마 ───────── */
