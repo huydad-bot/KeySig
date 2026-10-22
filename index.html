@@ -38,6 +38,7 @@ h1{font-size:27.5px;margin:4px 0 2px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
 .card h2{font-size:20px;margin:0 0 10px;color:var(--accent);font-weight:700;letter-spacing:.01em}
 .card:not(.ks-card) h2{display:flex;align-items:center;gap:9px}
+.h2note{font-size:16px;font-weight:500;color:var(--muted)}
 .card:not(.ks-card) h2::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent);flex:none;
   box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
 .row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:6px 0}
@@ -174,7 +175,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   </div>
 
   <div class="card">
-    <h2>악기 설정</h2>
+    <h2>악기 설정 <span class="h2note">(Clarii Pro 20 기준)</span></h2>
     <div class="row">
       <label for="semiSel">반음 키 해석</label>
       <select id="semiSel">
