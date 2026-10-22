@@ -64,6 +64,12 @@ button:active{transform:translateY(1px)}
 .act{font-size:14px;color:var(--muted)}
 .led{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block;transition:background .15s}
 .led.on{background:var(--ok)}
+.ks-card{background:linear-gradient(160deg, color-mix(in srgb, var(--accent) 18%, var(--card)), color-mix(in srgb, var(--accent) 7%, var(--card)));
+  border:2px solid var(--accent);box-shadow:0 4px 18px color-mix(in srgb, var(--accent) 22%, transparent)}
+.ks-card h2{color:var(--accent);font-size:20px}
+.ks-card .key{background:var(--card);border-color:color-mix(in srgb, var(--accent) 35%, var(--line))}
+.ks-card .ks-bar button{background:var(--card);border-color:color-mix(in srgb, var(--accent) 45%, var(--line))}
+.ks-card .big{color:var(--accent)}
 .kbwrap{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;align-items:flex-start}
 .kb{display:flex;flex-direction:column;gap:5px}
 .kbrow{display:flex;gap:5px}
@@ -152,8 +158,8 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
     <div class="status" id="sfStatus">내장 소리 꺼짐</div>
   </div>
 
-  <div class="card">
-    <h2>조표 (Key Signature)</h2>
+  <div class="card ks-card">
+    <h2>★ 조표 (Key Signature) — 이 프로그램의 핵심</h2>
     <div class="ks-bar">
       <button id="ksDown" title="♭ 추가 (←)">◀</button>
       <select id="ksSel"></select>
