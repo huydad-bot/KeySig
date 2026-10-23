@@ -11,7 +11,6 @@
   gtag('config', 'G-T4YZ356GX5');
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
 <title>KeySig MIDI</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%2240%20-1360%201340%201780%22%3E%3Cg%20transform%3D%22scale%281%2C-1%29%22%3E%3Cpath%20d%3D%22M314%20801Q300%20854%20291.0%20906.0Q282%20958%20282%201012Q282%201059%20288.5%201100.5Q295%201142%20307%201177Q320%201217%20341.0%201252.5Q362%201288%20385.5%201311.0Q409%201334%20427%201334Q451%201334%20493%201249Q514%201206%20524.0%201156.0Q534%201106%20534%201049Q534%20978%20515.0%20907.5Q496%20837%20459.5%20775.0Q423%20713%20372%20666L407%20498Q422%20500%20432.0%20501.0Q442%20502%20447%20502Q508%20502%20556.0%20467.5Q604%20433%20632.5%20377.0Q661%20321%20661%20254Q661%20177%20621.5%20115.5Q582%2054%20503%2025Q508%208%20532%20-117Q538%20-147%20541.0%20-164.5Q544%20-182%20545.0%20-195.0Q546%20-208%20546%20-225Q546%20-275%20521.5%20-314.5Q497%20-354%20455.5%20-376.0Q414%20-398%20363%20-398Q311%20-398%20271.0%20-378.5Q231%20-359%20208.0%20-324.5Q185%20-290%20185%20-245Q185%20-197%20211.5%20-165.0Q238%20-133%20287%20-133Q329%20-133%20355.5%20-163.5Q382%20-194%20382%20-236Q382%20-272%20357.0%20-299.0Q332%20-326%20292%20-326H282Q308%20-365%20364%20-365Q433%20-365%20472.0%20-320.0Q511%20-275%20511%20-205Q511%20-188%20507.0%20-159.5Q503%20-131%20493%20-91Q483%20-51%20477.5%20-25.0Q472%201%20470%2012Q436%202%20390%202Q304%202%20222%2052Q142%20102%2096.0%20184.0Q50%20266%2050%20361Q50%20451%2091%20530Q132%20609%20192.5%20675.0Q253%20741%20314%20801ZM341%20826Q364%20838%20390.0%20870.5Q416%20903%20440.0%20945.0Q464%20987%20479.0%201029.5Q494%201072%20494%201106Q494%201142%20483.0%201163.0Q472%201184%20445%201184Q421%201184%20398.5%201162.0Q376%201140%20358.5%201103.5Q341%201067%20331.0%201022.0Q321%20977%20321%20930Q321%20898%20327.5%20872.0Q334%20846%20341%20826ZM398%20379Q371%20373%20347.0%20353.5Q323%20334%20308.5%20306.5Q294%20279%20294%20248Q294%20223%20307.0%20196.5Q320%20170%20339%20154Q352%20142%20365%20136Q380%20129%20380%20123Q380%20120%20370%20117Q332%20126%20301.5%20151.0Q271%20176%20253.5%20211.5Q236%20247%20236%20287Q236%20330%20253.5%20370.0Q271%20410%20302.5%20442.0Q334%20474%20374%20490L345%20641Q229%20547%20174.5%20456.5Q120%20366%20120%20277Q120%20212%20154.0%20156.0Q188%20100%20247.0%2065.5Q306%2031%20380%2031Q400%2031%20420.5%2035.0Q441%2039%20464%2045ZM495%2055Q593%2097%20593%20227Q593%20270%20571.0%20305.5Q549%20341%20512.0%20362.0Q475%20383%20429%20383Z%22%20fill%3D%22%231f4e9c%22%20transform%3D%22translate%2820%2C0%29%22/%3E%3Cpath%20d%3D%22M97%2046V189L50%20177V277L97%20290V486H128V298L195%20314V509H226V322L275%20333V234L226%20220V77L275%2089V-14L226%20-26V-214H195V-34L128%20-52V-247H97V-59L50%20-71V32ZM195%2070V214L128%20197V54Z%22%20fill%3D%22%231f4e9c%22%20transform%3D%22translate%28760%2C869%29%22/%3E%3Cpath%20d%3D%22M50%20615H81V225Q118%20262%20165%20262Q197%20262%20223.0%20240.5Q249%20219%20249%20178Q249%20146%20230.0%20119.0Q211%2092%20179%2065L110%206Q91%20-10%2076.0%20-25.5Q61%20-41%2050%20-55ZM81%2012Q107%2040%20125.0%2063.5Q143%2087%20153%20105Q164%20124%20169.5%20140.0Q175%20156%20175%20170Q175%20198%20162.0%20210.5Q149%20223%20134%20223Q118%20223%20102.5%20211.5Q87%20200%2081%20180Z%22%20fill%3D%22%231f4e9c%22%20transform%3D%22translate%281110%2C410%29%22/%3E%3C/g%3E%3C/svg%3E">
 <meta name="description" content="관악기 MIDI 입력에 조표(Key Signature)를 적용해 Logic Pro / MainStage로 보내는 웹 프로그램">
@@ -135,6 +134,10 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <label for="outSel">출력 (Logic Pro 등 선택)</label>
       <select id="outSel"></select>
     </div>
+    <div class="row" id="selfRow" hidden>
+      <label><input type="checkbox" id="selfChk"> 출력이 악기 자신(Clarii)일 때: 악기의 원래 음 끄기 (2중 소리 방지)</label>
+    </div>
+      <p class="help" id="selfNote" hidden>⚠ 입력·출력이 모두 Clarii PRO인 경우: Clarii를 <b>MIDI Mode → System(일반) 모드</b>로 바꿔야 합니다. MIDI Mode에서는 받은 음이 기기에서 소리 나지 않습니다.</p>
     <div class="status" id="midiStatus">MIDI 준비 중…</div>
     <div class="row act" id="actRow"><span class="led" id="ledIn"></span><span>악기 신호 수신</span>
       <span class="led" id="ledNote"></span><span>음 수신</span>
@@ -239,6 +242,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
             <b>MainStage</b>: 레이아웃 모드 → 건반 그림 → 입력을 <b>IAC 드라이버</b>로.</li>
         <li><b>Logic 없이</b> 연주하려면 "내장 소리 켜기"를 체크하고 악기를 고릅니다. 처음 한 번 기본 사운드폰트(약 30MB)를 내려받고, 이후에는 브라우저에 저장됩니다. 다른 .sf2 파일은 [sf2 불러오기]로 넣을 수 있습니다. 이때 Logic으로 보내지 않으려면 출력을 "없음"으로 둡니다.</li>
         <li>조표를 고르고 연주합니다. ✱1 = ♮(조표 해제), ✱2 = ♯ 올림 (Clarii Controllers에서 ✱키를 Artl.로 설정).</li>
+        <li><b>입력·출력 모두 Clarii PRO</b>로 쓰려면(Clarii 본체 소리로 연주) Clarii를 <b>MIDI Mode가 아닌 System(일반) 모드</b>로 둡니다. MIDI Mode에서는 받은 음이 기기에서 소리 나지 않습니다. "원래 음 끄기"가 켜져 있어야 2중 소리가 나지 않습니다.</li>
       </ol>
       <p class="help">컴퓨터 키보드(이 페이지가 앞에 있을 때): A S D F G H J = C D E F G A B, K L ; = 위 C D E,
         Q/W/E 누른 채 = ♭/♯/♮, ←/→ 조표, 0 조표 Off, ↑/↓ 옥타브, Esc 모든 음 끄기.
@@ -318,8 +322,16 @@ function mapIn(n){
 
 /* ───────── MIDI 출력 ───────── */
 let access = null, outPort = null, inPort = null;
+const sentAt = new Map();                    // 악기로 되돌려 보낸 음 (되울림 무시용)
+const noteKey = (b) => ((b[0] & 0xF0) === 0x90 && b[2] > 0 ? "on:" : "off:") + b[1];
+function portSend(bytes){
+  if (!outPort) return;
+  try { outPort.send(bytes); } catch(e){ return; }
+  const t = bytes[0] & 0xF0; if (t === 0x80 || t === 0x90) sentAt.set(noteKey(bytes), performance.now());
+}
+const selfMode = () => !!outPort && $("selfChk").checked;   // 출력 = 악기 자신
 function send(bytes){
-  if (outPort) { try { outPort.send(bytes); } catch(e){} }
+  portSend(bytes);
   synth.handle(bytes);
 }
 const noteOn  = (ch, n, v) => send([0x90 | ch, n, v]);
@@ -360,6 +372,9 @@ function blink(id){ const el = $(id); el.classList.add("on"); clearTimeout(ledT[
 function onMidi(ev){
   const [st, d1 = 0, d2 = 0] = ev.data, type = st & 0xF0, ch = st & 0x0F;
   if (st >= 0xF0) return;                                   // 클럭 등 무시
+  if (selfMode() && (type === 0x80 || type === 0x90)) {   // 악기가 되울려 보낸 음은 무시
+    const t = sentAt.get(noteKey(ev.data)); if (t && performance.now() - t < 40) return;
+  }
   blink("ledIn");
   if (type === 0x90 && d2 > 0){ blink("ledNote"); $("lastIn").textContent = "마지막 받은 음: " + CHROMA[d1 % 12] + (Math.floor(d1 / 12) - 1) + " (채널 " + (ch + 1) + ")"; }
   if (type === 0x90 && d2 > 0){
@@ -367,7 +382,10 @@ function onMidi(ev){
     const key = ch + ":" + d1;
     if (S.active.has(key)) release(ch, S.active.get(key));
     S.active.set(key, m.out); S.vel.set(key, d2); addOut(ch, m.out);
-    noteOn(ch, m.out, S.fixVel || d2);
+    if (selfMode()) {                       // 악기 자신으로 출력: 원래 음을 끄고 바뀐 음만 보냄
+      if (m.out !== d1) { portSend([0x80 | ch, d1, 0]); portSend([0x90 | ch, m.out, S.fixVel || d2]); }
+      synth.handle([0x90 | ch, m.out, S.fixVel || d2]);
+    } else noteOn(ch, m.out, S.fixVel || d2);
     if (S.mono) releaseAll(key);
     show(m.label + "   (MIDI " + m.out + ")  ♪");
     return;
@@ -509,18 +527,29 @@ function fillPorts(){
   pick(outSel, outs, keepOut, ["iac", "버스", "bus"]);
   connect();
 }
+let lastPair = null;
 function connect(){
   if (inPort) inPort.onmidimessage = null;
   inPort = access.inputs.get(inSel.value) || null;
   outPort = access.outputs.get(outSel.value) || null;
   if (inPort) inPort.onmidimessage = onMidi;
   S.active.clear(); S.outCount.clear(); S.inst.clear();
+  $("selfRow").hidden = !outPort;
+  const pair = (inPort ? inPort.name : "") + "|" + (outPort ? outPort.name : "");
+  if (pair !== lastPair) {                 // 포트가 바뀔 때만 자동 판단 (같은 기기면 켬)
+    lastPair = pair;
+    const same = inPort && outPort && (inPort.name === outPort.name ||
+      ["clarii", "robkoo"].some(w => inPort.name.toLowerCase().includes(w) && outPort.name.toLowerCase().includes(w)));
+    $("selfChk").checked = !!same;
+  }
   const st = $("midiStatus");
   const parts = [];
   parts.push(inPort ? "입력: " + inPort.name : "입력 없음 — 컴퓨터 키보드로 연주");
   parts.push(outPort ? "출력: " + outPort.name : "출력 포트 없음 (컴퓨터 내장음)");
   if (synthChk.checked) parts.push("내장 소리 켜짐");
   if (synthChk.checked && outPort) parts.push("⚠ Logic 등으로도 소리가 나갑니다. 내장 소리만 들으려면 출력을 '없음'으로");
+  $("selfNote").hidden = !selfMode();
+  if (selfMode()) parts.push("악기로 되돌려 보냄 — 원래 음 끄기 켜짐");
   st.textContent = parts.join("   |   ");
   st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
   if (!outPort && !synthChk.checked && access.outputs.size === 0)
@@ -528,6 +557,7 @@ function connect(){
   store.set();
 }
 inSel.onchange = outSel.onchange = connect;
+$("selfChk").onchange = connect;
 
 async function initMidi(){
   const st = $("midiStatus");
@@ -825,6 +855,7 @@ const synth = (() => {
 const HELP = {
   "#inSel": "악기(Clarii 등)를 고릅니다.\nUSB면 \"Clarii PRO\", 블루투스면 \"…Bluetooth\".\n\"없음\"이면 컴퓨터 키보드로 연주합니다.",
   "#outSel": "조표가 적용된 음을 보낼 곳입니다.\nLogic·MainStage로 보내려면 \"IAC 드라이버 버스 1\".\n내장 소리만 쓸 때는 \"없음\".",
+  "#selfChk": "출력을 악기(Clarii) 자신으로 할 때 켭니다.\n조표로 바뀐 음을 보내기 전에 악기가 낸 원래 음에 Note Off를 보내 2중 소리를 막습니다.\n(악기는 MIDI Mode가 아닌 일반 모드, 첫 순간 원래 음이 아주 짧게 들릴 수 있음)",
   "#midiStatus": "현재 입력·출력 연결 상태입니다.\n초록색이면 정상입니다.",
   "#actRow": "악기에서 신호가 오면 초록 불이 깜빡입니다.\n\"음 수신\"이 안 깜빡이면 입력 기기·권한(허용)을 확인하십시오.",
   "#synthChk": "브라우저에서 직접 소리를 냅니다 (Logic 불필요).\n처음 한 번 사운드폰트(약 30MB)를 내려받습니다.",
@@ -876,28 +907,13 @@ for (const [sel, txt] of Object.entries(HELP)) document.querySelectorAll(sel).fo
   document.addEventListener("mouseleave", () => tip.style.display = "none");
 })();
 
-/* ───────── 테마 ─────────
-   기본: Chrome·OS 다크 모드(일몰 자동 전환 포함)를 그대로 따름.
-   ◐ 버튼으로 바꾼 선택은 "그 시점의 기기 모드" 동안만 유지되고,
-   기기 모드가 다음에 바뀌면(일몰·일출) 자동으로 해제되어 다시 기기 설정을 따름. */
-(function(){
-  const r = document.documentElement, mq = matchMedia("(prefers-color-scheme: dark)");
-  const sys = () => mq.matches ? "dark" : "light";
-  const KEY = "keysig-theme";
-  const clear = () => { delete r.dataset.theme; try { localStorage.removeItem(KEY); } catch(e){} };
-  try {                                   /* 저장된 수동 선택: 같은 기기 모드일 때만 적용 */
-    const v = JSON.parse(localStorage.getItem(KEY) || "null");
-    if (v && v.theme && v.sys === sys()) r.dataset.theme = v.theme; else clear();
-  } catch(e){ clear(); }
-  $("themeBtn").onclick = () => {
-    const cur = r.dataset.theme || sys(), next = cur === "dark" ? "light" : "dark";
-    if (next === sys()) { clear(); return; }          /* 기기 모드와 같아지면 수동 선택 해제 */
-    r.dataset.theme = next;
-    try { localStorage.setItem(KEY, JSON.stringify({ theme: next, sys: sys() })); } catch(e){}
-  };
-  const onChange = () => clear();                     /* 일몰·일출 전환 시 기기 설정으로 복귀 */
-  if (mq.addEventListener) mq.addEventListener("change", onChange); else if (mq.addListener) mq.addListener(onChange);
-})();
+/* ───────── 테마 ───────── */
+$("themeBtn").onclick = () => {
+  const r = document.documentElement, dark = getComputedStyle(r).getPropertyValue("--bg").trim() === "#14171d";
+  r.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("keysig-theme", r.dataset.theme); } catch(e){}
+};
+try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentElement.dataset.theme = t; } catch(e){}
 
 /* ───────── 시작 ───────── */
 (function restore(){
