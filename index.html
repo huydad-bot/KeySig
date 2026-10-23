@@ -119,7 +119,8 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   <button class="helpbtn" id="helpBtn" title="켜면 각 항목에 마우스를 올렸을 때 설명이 나옵니다">? 설명</button>
   <div id="tip"></div>
   <h1>KeySig MIDI</h1>
-  <p class="sub">자연음 운지로 연주하면 조표의 ♯/♭이 자동 적용되어 Logic Pro·MainStage로 전달됩니다. (Chrome·Edge 전용)</p>
+  <p class="sub">아래 조표(Key Signature)를 지정한 후 자연음 운지로 연주하면 조표의 ♯/♭이 맞춤 적용됨 (Chrome·Edge 전용)<br>
+    Clarii Pro 20 기준 (Clarii mini, re.corder 등은 제자리표 처리 완벽하지 않음)</p>
 
   <div class="card" id="midiCard">
     <h2>연결</h2>
@@ -128,7 +129,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <select id="inSel"></select>
     </div>
     <div class="row">
-      <label for="outSel">출력 (Logic으로)</label>
+      <label for="outSel">출력 (Logic Pro 등 선택)</label>
       <select id="outSel"></select>
     </div>
     <div class="status" id="midiStatus">MIDI 준비 중…</div>
@@ -138,7 +139,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   </div>
 
   <div class="card" id="soundCard">
-    <h2>내장 소리 (Logic 없이 연주)</h2>
+    <h2>컴퓨터 내장음 이용 <span class="h2note">(컴퓨터 내장음, sf2 등)</span></h2>
     <div class="row">
       <label><input type="checkbox" id="synthChk"> 내장 소리 켜기</label>
       <label for="volRng">음량</label>
@@ -673,7 +674,7 @@ const synth = (() => {
       const node = fs.createAudioNode(ctx, { midiChannelCount: 16, reverbActive: true, chorusActive: false });
       node.connect(gainNode);
     })();
-    fsReady.catch(() => { fsReady = null; status("소리 엔진을 불러오지 못했습니다. 인터넷 연결을 확인하십시오.", "warn"); });
+    fsReady.catch(e => { fsReady = null; status("소리 엔진을 불러오지 못했습니다 (" + (e && e.message || e) + "). 크롬 최신 버전·인터넷 연결을 확인하십시오.", "warn"); });
     return fsReady;
   }
   async function ensureFont(which){
@@ -724,8 +725,15 @@ const synth = (() => {
     if (!on) return;
     ensureCtx(); await ctx.resume();
     if (mode() === "simple") { presets = []; $("presetSel").innerHTML = "<option>간단한 합성음</option>"; status("소리: 간단한 합성음", "ok"); return; }
+    const ps = $("presetSel");
+    ps.innerHTML = "<option>⏳ 악기 목록 불러오는 중… (아래 상태 줄 확인)</option>";
     try { fillPresets(await listPresets(mode()), keep); }
-    catch(e){ if (fsReady) status(mode() === "user" ? "내 sf2를 다시 불러와 주십시오." : "기본 사운드폰트를 내려받지 못했습니다. 인터넷 연결을 확인하거나 sf2를 직접 불러오십시오.", "warn"); }
+    catch(e){
+      ps.innerHTML = "<option>⚠ 악기 목록을 불러오지 못했습니다 — 내장 소리를 껐다 켜서 다시 시도</option>";
+      status(mode() === "user" ? "내 sf2를 다시 불러와 주십시오."
+        : !fsReady ? "소리 엔진을 불러오지 못했습니다. 크롬 최신 버전인지, 인터넷 연결을 확인하십시오."
+        : "기본 사운드폰트를 내려받지 못했습니다. 인터넷 연결을 확인하거나 sf2를 직접 불러오십시오.", "warn");
+    }
   }
   async function loadUserFile(file){
     const data = await file.arrayBuffer();
@@ -760,7 +768,7 @@ const synth = (() => {
   return {
     enable(v){
       on = v;
-      if (v) { ensureCtx(); ctx.resume(); switchSource($("presetSel").value || store.get().preset); }
+      if (v) { ensureCtx(); ctx.resume(); switchSource($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset); }
       else { if (fs) fs.midiAllNotesOff(); for (const [, vc] of simple.voices) vc.stop(); simple.voices.clear(); status("내장 소리 꺼짐"); }
     },
     handle(b){
@@ -803,7 +811,8 @@ const synth = (() => {
         play(60, 0); play(64, 420); play(67, 840);
       };
       $("sfFile").onchange = e => { const f = e.target.files[0]; if (f) loadUserFile(f); e.target.value = ""; };
-      if (synthChk.checked) status("화면을 한 번 클릭하면 내장 소리가 켜집니다");
+      if (synthChk.checked) { status("화면을 한 번 터치(클릭)하면 내장 소리가 켜집니다");
+        $("presetSel").innerHTML = "<option>화면을 한 번 터치하면 악기 목록을 불러옵니다</option>"; }
     },
     _test: () => ({ fs, ctx, gainNode }),
   };
