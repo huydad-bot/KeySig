@@ -495,7 +495,7 @@ function fillPorts(){
   const keepOut = outSel.selectedOptions[0]?.textContent || saved.outName;
   inSel.innerHTML = ""; outSel.innerHTML = "";
   inSel.add(new Option("— None (play with computer keyboard) —", ""));
-  outSel.add(new Option("— None —", ""));
+  outSel.add(new Option("— None (built-in sound) —", ""));
   ins.forEach(p => inSel.add(new Option(p.name, p.id)));
   outs.forEach(p => outSel.add(new Option(p.name, p.id)));
   const pick = (sel, list, keep, words) => {
@@ -515,7 +515,7 @@ function connect(){
   const st = $("midiStatus");
   const parts = [];
   parts.push(inPort ? "Input: " + inPort.name : "No input — play with computer keyboard");
-  parts.push(outPort ? "Output: " + outPort.name : "No output port");
+  parts.push(outPort ? "Output: " + outPort.name : "No output port (built-in sound)");
   if (synthChk.checked) parts.push("Built-in sound on");
   if (synthChk.checked && outPort) parts.push("⚠ Sound also goes to Logic etc. Set output to 'None' to hear only the built-in sound");
   st.textContent = parts.join("   |   ");
