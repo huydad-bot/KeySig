@@ -1,0 +1,922 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T4YZ356GX5"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-T4YZ356GX5');
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KeySig MIDI</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%2240%20-1360%201340%201780%22%3E%3Cg%20transform%3D%22scale%281%2C-1%29%22%3E%3Cpath%20d%3D%22M314%20801Q300%20854%20291.0%20906.0Q282%20958%20282%201012Q282%201059%20288.5%201100.5Q295%201142%20307%201177Q320%201217%20341.0%201252.5Q362%201288%20385.5%201311.0Q409%201334%20427%201334Q451%201334%20493%201249Q514%201206%20524.0%201156.0Q534%201106%20534%201049Q534%20978%20515.0%20907.5Q496%20837%20459.5%20775.0Q423%20713%20372%20666L407%20498Q422%20500%20432.0%20501.0Q442%20502%20447%20502Q508%20502%20556.0%20467.5Q604%20433%20632.5%20377.0Q661%20321%20661%20254Q661%20177%20621.5%20115.5Q582%2054%20503%2025Q508%208%20532%20-117Q538%20-147%20541.0%20-164.5Q544%20-182%20545.0%20-195.0Q546%20-208%20546%20-225Q546%20-275%20521.5%20-314.5Q497%20-354%20455.5%20-376.0Q414%20-398%20363%20-398Q311%20-398%20271.0%20-378.5Q231%20-359%20208.0%20-324.5Q185%20-290%20185%20-245Q185%20-197%20211.5%20-165.0Q238%20-133%20287%20-133Q329%20-133%20355.5%20-163.5Q382%20-194%20382%20-236Q382%20-272%20357.0%20-299.0Q332%20-326%20292%20-326H282Q308%20-365%20364%20-365Q433%20-365%20472.0%20-320.0Q511%20-275%20511%20-205Q511%20-188%20507.0%20-159.5Q503%20-131%20493%20-91Q483%20-51%20477.5%20-25.0Q472%201%20470%2012Q436%202%20390%202Q304%202%20222%2052Q142%20102%2096.0%20184.0Q50%20266%2050%20361Q50%20451%2091%20530Q132%20609%20192.5%20675.0Q253%20741%20314%20801ZM341%20826Q364%20838%20390.0%20870.5Q416%20903%20440.0%20945.0Q464%20987%20479.0%201029.5Q494%201072%20494%201106Q494%201142%20483.0%201163.0Q472%201184%20445%201184Q421%201184%20398.5%201162.0Q376%201140%20358.5%201103.5Q341%201067%20331.0%201022.0Q321%20977%20321%20930Q321%20898%20327.5%20872.0Q334%20846%20341%20826ZM398%20379Q371%20373%20347.0%20353.5Q323%20334%20308.5%20306.5Q294%20279%20294%20248Q294%20223%20307.0%20196.5Q320%20170%20339%20154Q352%20142%20365%20136Q380%20129%20380%20123Q380%20120%20370%20117Q332%20126%20301.5%20151.0Q271%20176%20253.5%20211.5Q236%20247%20236%20287Q236%20330%20253.5%20370.0Q271%20410%20302.5%20442.0Q334%20474%20374%20490L345%20641Q229%20547%20174.5%20456.5Q120%20366%20120%20277Q120%20212%20154.0%20156.0Q188%20100%20247.0%2065.5Q306%2031%20380%2031Q400%2031%20420.5%2035.0Q441%2039%20464%2045ZM495%2055Q593%2097%20593%20227Q593%20270%20571.0%20305.5Q549%20341%20512.0%20362.0Q475%20383%20429%20383Z%22%20fill%3D%22%231f4e9c%22%20transform%3D%22translate%2820%2C0%29%22/%3E%3Cpath%20d%3D%22M97%2046V189L50%20177V277L97%20290V486H128V298L195%20314V509H226V322L275%20333V234L226%20220V77L275%2089V-14L226%20-26V-214H195V-34L128%20-52V-247H97V-59L50%20-71V32ZM195%2070V214L128%20197V54Z%22%20fill%3D%22%231f4e9c%22%20transform%3D%22translate%28760%2C869%29%22/%3E%3Cpath%20d%3D%22M50%20615H81V225Q118%20262%20165%20262Q197%20262%20223.0%20240.5Q249%20219%20249%20178Q249%20146%20230.0%20119.0Q211%2092%20179%2065L110%206Q91%20-10%2076.0%20-25.5Q61%20-41%2050%20-55ZM81%2012Q107%2040%20125.0%2063.5Q143%2087%20153%20105Q164%20124%20169.5%20140.0Q175%20156%20175%20170Q175%20198%20162.0%20210.5Q149%20223%20134%20223Q118%20223%20102.5%20211.5Q87%20200%2081%20180Z%22%20fill%3D%22%231f4e9c%22%20transform%3D%22translate%281110%2C410%29%22/%3E%3C/g%3E%3C/svg%3E">
+<meta name="description" content="A web app that applies a key signature to wind-controller MIDI input and sends it to Logic Pro / MainStage">
+<style>
+:root{
+  --bg:#f4f5f7; --card:#ffffff; --ink:#1d2330; --muted:#6b7280; --line:#dfe3ea;
+  --accent:#1f4e9c; --accent-ink:#ffffff; --sharp:#c0392b; --ok:#1e8a4c; --warn:#b45309; --chip:#eef2f8;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#14171d; --card:#1d2129; --ink:#e7eaf0; --muted:#9aa3b2; --line:#2e3440;
+    --accent:#6c9cf0; --accent-ink:#0d1117; --sharp:#ff7b6b; --ok:#4ccb83; --warn:#f0b357; --chip:#262c37;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#14171d; --card:#1d2129; --ink:#e7eaf0; --muted:#9aa3b2; --line:#2e3440;
+  --accent:#6c9cf0; --accent-ink:#0d1117; --sharp:#ff7b6b; --ok:#4ccb83; --warn:#f0b357; --chip:#262c37;
+}
+*{box-sizing:border-box}
+html{zoom:.75}   /* scale the whole page to 75% */
+html,body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Segoe UI",sans-serif;font-size:18.8px;line-height:1.45}
+main{max-width:860px;margin:0 auto;padding:16px}
+h1{font-size:27.5px;margin:4px 0 2px}
+.logo{height:1.75em;width:auto;vertical-align:-.5em;margin-right:6px}
+.sub{color:var(--muted);margin:0 0 14px;font-size:16.2px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.card h2{font-size:20px;margin:0 0 10px;color:var(--accent);font-weight:700;letter-spacing:.01em}
+.card:not(.ks-card) h2{display:flex;align-items:center;gap:9px}
+.h2note{font-size:16px;font-weight:500;color:var(--muted)}
+.card:not(.ks-card) h2::before{content:"";width:12px;height:12px;border-radius:50%;background:var(--accent);flex:none;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent)}
+.row{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin:6px 0}
+label{font-size:17.5px}
+select,input[type=number]{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);
+  border-radius:8px;padding:6px 8px;max-width:100%}
+select{min-width:0;flex:1 1 220px}
+input[type=number]{width:72px}
+button{font:inherit;border:1px solid var(--line);background:var(--chip);color:var(--ink);border-radius:8px;
+  padding:6px 12px;cursor:pointer}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button:active{transform:translateY(1px)}
+.status{font-size:16.2px;color:var(--muted)}
+.status.ok{color:var(--ok)} .status.warn{color:var(--warn)}
+.ks-bar{display:flex;gap:8px;align-items:center}
+.ks-bar button{font-size:25px;padding:6px 16px}
+.ks-bar select{font-size:21.2px;font-weight:600}
+.keys{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:10px}
+.key{border:1px solid var(--line);border-radius:8px;text-align:center;padding:6px 0;background:var(--chip)}
+.key small{display:block;color:var(--muted);font-size:13.8px}
+.key b{font-size:27.5px}
+.key.acc b{color:var(--sharp)}
+.big{font-size:55px;font-weight:700;text-align:center;margin:6px 0 0;min-height:60px}
+.mods{text-align:center;color:var(--sharp);min-height:22px;font-weight:600}
+.slot{display:grid;grid-template-columns:auto auto auto 1fr;gap:8px;align-items:center;margin:6px 0}
+.slot .cc{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;min-width:52px}
+.act{font-size:14px;color:var(--muted)}
+.led{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block;transition:background .15s}
+.led.on{background:var(--ok)}
+.ks-card{background:linear-gradient(160deg, color-mix(in srgb, var(--accent) 18%, var(--card)), color-mix(in srgb, var(--accent) 7%, var(--card)));
+  border:2px solid var(--accent);box-shadow:0 4px 18px color-mix(in srgb, var(--accent) 22%, transparent)}
+.ks-card h2{color:var(--accent);font-size:20px}
+.ks-card .key{background:var(--card);border-color:color-mix(in srgb, var(--accent) 35%, var(--line))}
+.ks-card .ks-bar button{background:var(--card);border-color:color-mix(in srgb, var(--accent) 45%, var(--line))}
+.ks-card .big{color:var(--accent)}
+.kbwrap{display:flex;flex-wrap:wrap;gap:16px;margin-top:10px;align-items:flex-start}
+.kb{display:flex;flex-direction:column;gap:5px}
+.kbrow{display:flex;gap:5px}
+.kk{width:52px;height:56px;border:1px solid var(--line);border-radius:7px;background:var(--card);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:13px;color:var(--muted);line-height:1.15}
+.kk b{font-size:13px;color:var(--muted);font-weight:600}
+.kk span{font-size:15px;font-weight:700;color:var(--ink)}
+.kk.note{background:color-mix(in srgb, var(--accent) 16%, var(--card));border-color:var(--accent)}
+.kk.note.acc span{color:var(--sharp)}
+.kk.mod{background:color-mix(in srgb, var(--sharp) 14%, var(--card));border-color:var(--sharp)}
+.kk.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
+.kk.blank{opacity:.35}
+.kk.wide{width:84px}
+.kk.down{transform:translateY(2px);box-shadow:inset 0 0 0 2px var(--ink)}
+.kbside{display:grid;grid-template-columns:repeat(3,64px);gap:5px}
+.kbside .kk{width:64px}
+.kblegend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:10px;font-size:14px;color:var(--muted)}
+.sw{display:inline-block;width:14px;height:14px;border-radius:3px;margin-right:5px;vertical-align:-2px;border:1px solid}
+.sw.note{background:color-mix(in srgb, var(--accent) 16%, var(--card));border-color:var(--accent)}
+.sw.mod{background:color-mix(in srgb, var(--sharp) 14%, var(--card));border-color:var(--sharp)}
+.sw.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
+.mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
+details summary{cursor:pointer;color:var(--accent);font-size:20px;font-weight:700}
+details p,details li{font-size:17.5px}
+.help{color:var(--muted);font-size:16.2px}
+.theme{float:right;margin-left:6px}
+.helpbtn{float:right;font-weight:600}
+.helpbtn.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cursor:help}
+#tip{position:fixed;z-index:50;max-width:420px;background:var(--ink);color:var(--bg);padding:9px 13px;border-radius:9px;
+  font-size:19px;line-height:1.45;pointer-events:none;box-shadow:0 4px 14px rgba(0,0,0,.25);display:none;white-space:pre-line}
+@media (max-width:560px){
+  .slot{grid-template-columns:1fr auto; }
+  .slot select{grid-column:1 / -1}
+  .big{font-size:42.5px}
+  .key b{font-size:22.5px}
+}
+</style>
+</head>
+<body>
+<main>
+  <button class="theme" id="themeBtn" title="Light / dark">◐</button>
+  <button class="helpbtn" id="helpBtn" title="When on, hovering over an item shows a short explanation">? Help</button>
+  <div id="tip"></div>
+  <h1><svg class="logo" viewBox="40 -1360 1340 1780" aria-hidden="true"><g transform="scale(1,-1)"><path d="M314 801Q300 854 291.0 906.0Q282 958 282 1012Q282 1059 288.5 1100.5Q295 1142 307 1177Q320 1217 341.0 1252.5Q362 1288 385.5 1311.0Q409 1334 427 1334Q451 1334 493 1249Q514 1206 524.0 1156.0Q534 1106 534 1049Q534 978 515.0 907.5Q496 837 459.5 775.0Q423 713 372 666L407 498Q422 500 432.0 501.0Q442 502 447 502Q508 502 556.0 467.5Q604 433 632.5 377.0Q661 321 661 254Q661 177 621.5 115.5Q582 54 503 25Q508 8 532 -117Q538 -147 541.0 -164.5Q544 -182 545.0 -195.0Q546 -208 546 -225Q546 -275 521.5 -314.5Q497 -354 455.5 -376.0Q414 -398 363 -398Q311 -398 271.0 -378.5Q231 -359 208.0 -324.5Q185 -290 185 -245Q185 -197 211.5 -165.0Q238 -133 287 -133Q329 -133 355.5 -163.5Q382 -194 382 -236Q382 -272 357.0 -299.0Q332 -326 292 -326H282Q308 -365 364 -365Q433 -365 472.0 -320.0Q511 -275 511 -205Q511 -188 507.0 -159.5Q503 -131 493 -91Q483 -51 477.5 -25.0Q472 1 470 12Q436 2 390 2Q304 2 222 52Q142 102 96.0 184.0Q50 266 50 361Q50 451 91 530Q132 609 192.5 675.0Q253 741 314 801ZM341 826Q364 838 390.0 870.5Q416 903 440.0 945.0Q464 987 479.0 1029.5Q494 1072 494 1106Q494 1142 483.0 1163.0Q472 1184 445 1184Q421 1184 398.5 1162.0Q376 1140 358.5 1103.5Q341 1067 331.0 1022.0Q321 977 321 930Q321 898 327.5 872.0Q334 846 341 826ZM398 379Q371 373 347.0 353.5Q323 334 308.5 306.5Q294 279 294 248Q294 223 307.0 196.5Q320 170 339 154Q352 142 365 136Q380 129 380 123Q380 120 370 117Q332 126 301.5 151.0Q271 176 253.5 211.5Q236 247 236 287Q236 330 253.5 370.0Q271 410 302.5 442.0Q334 474 374 490L345 641Q229 547 174.5 456.5Q120 366 120 277Q120 212 154.0 156.0Q188 100 247.0 65.5Q306 31 380 31Q400 31 420.5 35.0Q441 39 464 45ZM495 55Q593 97 593 227Q593 270 571.0 305.5Q549 341 512.0 362.0Q475 383 429 383Z" fill="var(--accent)" transform="translate(20,0)"/><path d="M97 46V189L50 177V277L97 290V486H128V298L195 314V509H226V322L275 333V234L226 220V77L275 89V-14L226 -26V-214H195V-34L128 -52V-247H97V-59L50 -71V32ZM195 70V214L128 197V54Z" fill="var(--accent)" transform="translate(760,869)"/><path d="M50 615H81V225Q118 262 165 262Q197 262 223.0 240.5Q249 219 249 178Q249 146 230.0 119.0Q211 92 179 65L110 6Q91 -10 76.0 -25.5Q61 -41 50 -55ZM81 12Q107 40 125.0 63.5Q143 87 153 105Q164 124 169.5 140.0Q175 156 175 170Q175 198 162.0 210.5Q149 223 134 223Q118 223 102.5 211.5Q87 200 81 180Z" fill="var(--accent)" transform="translate(1110,410)"/></g></svg>KeySig MIDI</h1>
+  <p class="sub">Choose the key signature below, then play with C-major fingerings — the ♯/♭ of the key signature are applied automatically (Chrome / Edge only)<br>
+    Based on Clarii Pro 20 (♮ handling is not perfect on Clarii mini, re.corder, etc.)</p>
+
+  <div class="card" id="midiCard">
+    <h2>Connection</h2>
+    <div class="row">
+      <label for="inSel">Input (instrument)</label>
+      <select id="inSel"></select>
+    </div>
+    <div class="row">
+      <label for="outSel">Output (Logic Pro, etc.)</label>
+      <select id="outSel"></select>
+    </div>
+    <div class="row" id="selfRow" hidden>
+      <label><input type="checkbox" id="selfChk"> When the output is the instrument itself (Clarii): silence its original note (prevents doubled notes)</label>
+    </div>
+      <p class="help" id="selfNote" hidden>⚠ When both input and output are the Clarii PRO: switch the Clarii from <b>MIDI Mode to System (normal) mode</b>. In MIDI Mode, notes sent to the instrument do not sound.</p>
+    <div class="status" id="midiStatus">Preparing MIDI…</div>
+    <div class="row act" id="actRow"><span class="led" id="ledIn"></span><span>Instrument signal</span>
+      <span class="led" id="ledNote"></span><span>Note</span>
+      <span class="status" id="lastIn">No signal received yet</span></div>
+  </div>
+
+  <div class="card" id="soundCard">
+    <h2>Built-in Sound <span class="h2note">(computer sound, sf2, etc.)</span></h2>
+    <div class="row">
+      <label><input type="checkbox" id="synthChk"> Built-in sound on</label>
+      <label for="volRng">Volume</label>
+      <input type="range" id="volRng" min="0" max="100" value="70" style="flex:0 1 160px">
+    </div>
+    <div class="row">
+      <label for="sfSel">Sound</label>
+      <select id="sfSel">
+        <option value="default">Default SoundFont (GeneralUser GS · 128 instruments)</option>
+        <option value="user" disabled>My sf2 (not loaded)</option>
+        <option value="simple">Simple synth (no download)</option>
+      </select>
+      <button id="sfBtn">Load sf2</button>
+      <input type="file" id="sfFile" accept=".sf2,.sf3" hidden>
+    </div>
+    <div class="row">
+      <label for="presetSel">Instrument</label>
+      <select id="presetSel"></select>
+      <button id="testBtn" title="Play C-E-G with the browser sound only">♪ Preview</button>
+    </div>
+    <div class="status" id="sfStatus">Built-in sound off</div>
+  </div>
+
+  <div class="card ks-card">
+    <h2>★ Key Signature — the core of this program</h2>
+    <div class="ks-bar">
+      <button id="ksDown" title="Add ♭ (←)">◀</button>
+      <select id="ksSel"></select>
+      <button id="ksUp" title="Add ♯ (→)">▶</button>
+    </div>
+    <div class="keys" id="keys"></div>
+    <div class="big" id="big">—</div>
+    <div class="mods" id="mods"></div>
+  </div>
+
+  <div class="card">
+    <h2>Instrument Settings <span class="h2note">(based on Clarii Pro 20)</span></h2>
+    <div class="row">
+      <label for="semiSel">Semitone keys</label>
+      <select id="semiSel">
+        <option value="auto">Auto (♭ keys: read as ♯ key / ♯ keys: read as ♭ key) — recommended</option>
+        <option value="sharp">Always read as ♯ key (raise)</option>
+        <option value="flat">Always read as ♭ key (lower)</option>
+        <option value="off">Don't interpret (pass semitones through)</option>
+      </select>
+    </div>
+    <div class="slot">
+      <span>Instrument key 1 (✱1)</span><span class="cc" id="cc0">CC80</span>
+      <button data-learn="0">Learn</button>
+      <select id="role0"></select>
+    </div>
+    <div class="slot">
+      <span>Instrument key 2 (✱2)</span><span class="cc" id="cc1">CC81</span>
+      <button data-learn="1">Learn</button>
+      <select id="role1"></select>
+    </div>
+    <div class="row">
+      <label><input type="checkbox" id="fixChk" checked> Fixed velocity</label>
+      <input type="number" id="fixVal" min="1" max="127" value="100">
+      <label><input type="checkbox" id="monoChk" checked> Monophonic (wind instrument)</label>
+    </div>
+    <div class="row">
+      <label for="trSel">Transpose</label>
+      <select id="trSel" style="flex:0 1 140px"></select>
+      <label for="octSel">Octave (computer keyboard)</label>
+      <select id="octSel" style="flex:0 1 110px"></select>
+    </div>
+    <div class="mon" id="mon">Received (excluding breath): none</div>
+  </div>
+
+  <div class="card">
+    <details id="kbDetails">
+      <summary>Computer keyboard layout (for playing when no instrument is connected)</summary>
+      <div class="kbwrap">
+        <div class="kb" id="kb"></div>
+        <div class="kbside" id="kbside"></div>
+      </div>
+      <div class="kblegend">
+        <span><i class="sw note"></i>Play (note names follow the current key signature and octave)</span>
+        <span><i class="sw mod"></i>Hold for ♭ / ♯ / ♮</span>
+        <span><i class="sw ctl"></i>Controls</span>
+      </div>
+      <p class="help">Works while this page is in front. When an instrument (Clarii) is selected as input, the keyboard does not play notes — only the red and green (control) keys work. On a MacBook, PgUp = fn+↑, PgDn = fn+↓.</p>
+    </details>
+  </div>
+
+  <div class="card">
+    <details>
+      <summary>How to use · first-time setup</summary>
+      <ol>
+        <li><b>Mac, first time only:</b> Audio MIDI Setup → Window → Show MIDI Studio → double-click <b>IAC Driver</b> → check "Device is online".</li>
+        <li>Put the Clarii in <b>MIDI Mode</b>, connect it by USB (or Bluetooth), then open this page. Choose the Clarii as input and <b>IAC Driver Bus 1</b> as output.</li>
+        <li><b>Logic Pro</b>: Settings → MIDI → Inputs: <b>uncheck the Clarii</b>, check only the IAC Driver.<br>
+            <b>MainStage</b>: Layout mode → keyboard screen control → set its input to the <b>IAC Driver</b>.</li>
+        <li>To play <b>without Logic</b>, check "Built-in sound on" and choose an instrument. The default SoundFont (about 30 MB) is downloaded once and then kept in the browser. Other .sf2 files can be added with [Load sf2]. Set the output to "None" if you don't want to send to Logic as well.</li>
+        <li>Choose the key signature and play. ✱1 = ♮ (cancel key signature), ✱2 = ♯ raise (set the ✱ keys to Artl. in the Clarii Controllers settings).</li>
+        <li>To use the <b>Clarii PRO as both input and output</b> (playing with the Clarii's own sound), put the Clarii in <b>System (normal) mode, not MIDI Mode</b>. In MIDI Mode, notes sent to the instrument do not sound. Keep "silence its original note" on to avoid doubled notes.</li>
+      </ol>
+      <p class="help">Computer keyboard (while this page is in front): A S D F G H J = C D E F G A B, K L ; = C D E above,
+        hold Q/W/E = ♭/♯/♮, ←/→ key signature, 0 key signature Off, ↑/↓ octave, Esc all notes off.
+        When an instrument is connected, the keyboard only controls — it does not play notes.</p>
+      <p class="help">Limitation: when the result is a white-key note, as with E + semitone key (= F), it cannot be told apart from a normal fingering, so use the ✱2 key.</p>
+    </details>
+  </div>
+</main>
+
+<script>
+"use strict";
+/* ───────── Music theory ───────── */
+const LETTERS = "CDEFGAB";
+const BASE = {C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+const LET_OF = {0:"C",2:"D",4:"E",5:"F",7:"G",9:"A",11:"B"};
+const SHARP_ORDER = "FCGDAEB", FLAT_ORDER = "BEADGCF";
+const MAJOR = {0:"C",1:"G",2:"D",3:"A",4:"E",5:"B",6:"F♯",7:"C♯",[-1]:"F",[-2]:"B♭",[-3]:"E♭",[-4]:"A♭",[-5]:"D♭",[-6]:"G♭",[-7]:"C♭"};
+const MINOR = {0:"A",1:"E",2:"B",3:"F♯",4:"C♯",5:"G♯",6:"D♯",7:"A♯",[-1]:"D",[-2]:"G",[-3]:"C",[-4]:"F",[-5]:"B♭",[-6]:"E♭",[-7]:"A♭"};
+const CHROMA = ["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"];
+const ROLES = [["Not used",""],["♮ Natural (cancel key signature)","nat"],["♯ Raise (key-signature note + semitone)","sharp"],["♭ Lower (key-signature note − semitone)","flat"]];
+const BREATH_CC = new Set([2,7,11]);
+const CONTINUOUS_CC = new Set([1,2,5,7,11,65,74,120,121,123]);
+const accSym = a => ({"-2":"𝄫","-1":"♭","0":"","1":"♯","2":"𝄪"})[a] ?? "?";
+const ksShort = k => k === 0 ? "Off" : Math.abs(k) + (k > 0 ? "♯" : "♭");
+function ksAcc(letter, ks){
+  if (ks > 0 && SHARP_ORDER.slice(0, ks).includes(letter)) return 1;
+  if (ks < 0 && FLAT_ORDER.slice(0, -ks).includes(letter)) return -1;
+  return 0;
+}
+
+/* ───────── State ───────── */
+const S = {
+  ks:0, transpose:0, octave:0, semi:"auto", fixVel:100, mono:true,
+  slots:[{cc:80, role:"nat"}, {cc:81, role:"sharp"}],
+  inst:new Set(),            // roles held by instrument keys
+  kmods:new Set(),           // computer keyboard q/w/e
+  learning:-1,
+  active:new Map(),          // "ch:in" -> out
+  vel:new Map(),
+  outCount:new Map(),        // "ch:out" -> count
+  kbActive:new Map(),        // key -> {ch,out}
+};
+const store = {
+  get(){ try { return JSON.parse(localStorage.getItem("keysig") || "{}"); } catch(e){ return {}; } },
+  set(){ try { localStorage.setItem("keysig", JSON.stringify({
+      ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots,
+      inName:inSel.selectedOptions[0]?.textContent, outName:outSel.selectedOptions[0]?.textContent,
+      synth:synthChk.checked, sf:$("sfSel").value, preset:($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset), vol:+$("volRng").value })); } catch(e){} }
+};
+
+/* ───────── Note mapping (same as keysig_midi.py v3.5) ───────── */
+function isNat(){ return S.kmods.has("e") || S.inst.has("nat"); }
+function mapIn(n){
+  let letter = LET_OF[n % 12], base = n, inst = 0;
+  if (letter === undefined){
+    let mode = S.semi;
+    if (mode === "auto") mode = S.ks < 0 ? "sharp" : S.ks > 0 ? "flat" : "off";
+    if (mode === "sharp"){ base = n - 1; inst = 1; }
+    else if (mode === "flat"){ base = n + 1; inst = -1; }
+    letter = LET_OF[((base % 12) + 12) % 12];
+    if (mode === "off") letter = undefined;
+  }
+  let acc = 0, label;
+  if (letter !== undefined){
+    acc = (isNat() ? 0 : ksAcc(letter, S.ks)) + inst;
+    if (S.inst.has("sharp")) acc += 1;
+    if (S.inst.has("flat")) acc -= 1;
+    if (S.kmods.has("q")) acc -= 1;
+    if (S.kmods.has("w")) acc += 1;
+    const natural = acc === 0 && ksAcc(letter, S.ks) !== 0;
+    label = letter + (natural ? "♮" : accSym(acc));
+  } else { base = n; label = CHROMA[n % 12]; }
+  const out = base + acc + S.transpose;
+  if (out < 0 || out > 127) return null;
+  return {out, label: label + (Math.floor(base / 12) - 1)};
+}
+
+/* ───────── MIDI output ───────── */
+let access = null, outPort = null, inPort = null;
+const sentAt = new Map();                    // 악기로 되돌려 보낸 음 (되울림 무시용)
+const noteKey = (b) => ((b[0] & 0xF0) === 0x90 && b[2] > 0 ? "on:" : "off:") + b[1];
+function portSend(bytes){
+  if (!outPort) return;
+  try { outPort.send(bytes); } catch(e){ return; }
+  const t = bytes[0] & 0xF0; if (t === 0x80 || t === 0x90) sentAt.set(noteKey(bytes), performance.now());
+}
+const selfMode = () => !!outPort && $("selfChk").checked;   // 출력 = 악기 자신
+function send(bytes){
+  portSend(bytes);
+  synth.handle(bytes);
+}
+const noteOn  = (ch, n, v) => send([0x90 | ch, n, v]);
+const noteOff = (ch, n)    => send([0x80 | ch, n, 0]);
+function release(ch, out){
+  const k = ch + ":" + out, c = (S.outCount.get(k) || 0) - 1;
+  if (c > 0) { S.outCount.set(k, c); return; }
+  S.outCount.delete(k); noteOff(ch, out);
+}
+function addOut(ch, out){ const k = ch + ":" + out; S.outCount.set(k, (S.outCount.get(k) || 0) + 1); }
+function releaseAll(exceptKey){
+  for (const [k, out] of [...S.active]) {
+    if (k === exceptKey) continue;
+    S.active.delete(k); release(+k.split(":")[0], out);
+  }
+}
+function allNotesOff(){
+  releaseAll(null);
+  for (const [, v] of S.kbActive) release(v.ch, v.out);
+  S.kbActive.clear(); S.outCount.clear();
+  for (let ch = 0; ch < 16; ch++) send([0xB0 | ch, 123, 0]);
+  big.textContent = "—";
+}
+function remapHeld(){
+  for (const [k, old] of [...S.active]) {
+    const [ch, n] = k.split(":").map(Number);
+    const m = mapIn(n);
+    if (!m || m.out === old) continue;
+    release(ch, old); S.active.set(k, m.out); addOut(ch, m.out);
+    noteOn(ch, m.out, S.fixVel || S.vel.get(k) || 100);
+    show(m.label + "   (MIDI " + m.out + ")  ♪");
+  }
+}
+
+/* ───────── Instrument input ───────── */
+let ledT = {};
+function blink(id){ const el = $(id); el.classList.add("on"); clearTimeout(ledT[id]); ledT[id] = setTimeout(() => el.classList.remove("on"), 150); }
+function onMidi(ev){
+  const [st, d1 = 0, d2 = 0] = ev.data, type = st & 0xF0, ch = st & 0x0F;
+  if (st >= 0xF0) return;                                   // ignore clock etc.
+  if (selfMode() && (type === 0x80 || type === 0x90)) {   // 악기가 되울려 보낸 음은 무시
+    const t = sentAt.get(noteKey(ev.data)); if (t && performance.now() - t < 40) return;
+  }
+  blink("ledIn");
+  if (type === 0x90 && d2 > 0){ blink("ledNote"); $("lastIn").textContent = "Last note: " + CHROMA[d1 % 12] + (Math.floor(d1 / 12) - 1) + " (ch " + (ch + 1) + ")"; }
+  if (type === 0x90 && d2 > 0){
+    const m = mapIn(d1); if (!m) return;
+    const key = ch + ":" + d1;
+    if (S.active.has(key)) release(ch, S.active.get(key));
+    S.active.set(key, m.out); S.vel.set(key, d2); addOut(ch, m.out);
+    if (selfMode()) {                       // 악기 자신으로 출력: 원래 음을 끄고 바뀐 음만 보냄
+      if (m.out !== d1) { portSend([0x80 | ch, d1, 0]); portSend([0x90 | ch, m.out, S.fixVel || d2]); }
+      synth.handle([0x90 | ch, m.out, S.fixVel || d2]);
+    } else noteOn(ch, m.out, S.fixVel || d2);
+    if (S.mono) releaseAll(key);
+    show(m.label + "   (MIDI " + m.out + ")  ♪");
+    return;
+  }
+  if (type === 0x80 || (type === 0x90 && d2 === 0)){
+    const key = ch + ":" + d1;
+    if (S.active.has(key)) { release(ch, S.active.get(key)); S.active.delete(key); }
+    return;
+  }
+  if (type === 0xB0){
+    if (S.learning >= 0 && !CONTINUOUS_CC.has(d1) && d2 >= 64){
+      const k = S.learning; S.learning = -1;
+      S.slots[k].cc = d1; S.inst.clear(); renderSlots(); store.set();
+      monitor("Key " + (k + 1) + " = CC" + d1 + " assigned", "ok"); return;
+    }
+    const slot = S.slots.find(s => s.cc === d1 && s.role);
+    if (slot){
+      if (d2 >= 64) S.inst.add(slot.role); else S.inst.delete(slot.role);
+      remapHeld(); renderMods();
+      monitor("CC" + d1 + " = " + d2 + "  → " + ROLES.find(r => r[1] === slot.role)[0].split(" (")[0]);
+      return;
+    }
+    if (!CONTINUOUS_CC.has(d1)) monitor("CC" + d1 + " = " + d2);
+    send(ev.data);
+    if (S.mono && BREATH_CC.has(d1) && d2 === 0 && S.active.size) releaseAll(null);
+    return;
+  }
+  if (type === 0xA0){                                       // poly aftertouch
+    const key = ch + ":" + d1;
+    if (S.active.has(key)) send([st, S.active.get(key), d2]);
+    return;
+  }
+  if (type === 0xC0) monitor("Program Change " + (d1 + 1));
+  send(ev.data);                                            // pitch bend, channel pressure etc. pass through
+}
+
+/* ───────── Display ───────── */
+const $ = id => document.getElementById(id);
+const inSel = $("inSel"), outSel = $("outSel"), ksSel = $("ksSel"), big = $("big"), synthChk = $("synthChk");
+let lastMon = "";
+function monitor(t, cls){
+  if (t === lastMon) return; lastMon = t;
+  const el = $("mon"); el.textContent = (cls ? "" : "Received (excluding breath): ") + t;
+  el.style.color = cls === "ok" ? "var(--ok)" : cls === "warn" ? "var(--warn)" : "";
+}
+function show(t){ big.textContent = t; }
+function renderKeys(){
+  ksSel.value = S.ks;
+  $("keys").innerHTML = [...LETTERS].map((L, i) => {
+    const a = ksAcc(L, S.ks);
+    return `<div class="key${a ? " acc" : ""}"><small>${"ASDFGHJ"[i]}</small><b>${L}${accSym(a)}</b></div>`;
+  }).join("");
+  if (typeof renderKb === "function" && $("kb")) renderKb();
+}
+function renderMods(){
+  const m = [];
+  if (isNat()) m.push("♮ key signature off");
+  if (S.inst.has("sharp") || S.kmods.has("w")) m.push("♯");
+  if (S.inst.has("flat") || S.kmods.has("q")) m.push("♭");
+  $("mods").textContent = m.join("  ");
+}
+function renderSlots(){
+  S.slots.forEach((s, i) => {
+    $("cc" + i).textContent = "CC" + s.cc;
+    $("role" + i).value = s.role;
+  });
+}
+function setKs(k){ S.ks = Math.max(-7, Math.min(7, k)); renderKeys(); store.set(); }
+
+/* Computer keyboard layout diagram */
+const KB_ROWS = [
+  [["Esc","esc","All notes\noff","ctl"],["1"],["2"],["3"],["4"],["5"],["6"],["7"],["8"],["9"],["0","0","Key sig\nOff","ctl"]],
+  [["Q","q","♭","mod"],["W","w","♯","mod"],["E","e","♮","mod"],["R"],["T"],["Y"],["U"],["I"],["O"],["P"]],
+  [["A","a"],["S","s"],["D","d"],["F","f"],["G","g"],["H","h"],["J","j"],["K","k"],["L","l"],[";",";"]],
+  [["Z"],["X"],["C"],["V"],["B"],["N"],["M"]],
+];
+const KB_SIDE = [
+  ["PgUp","pgup","Transp.\n+1","ctl"],["↑","up","Octave\n+1","ctl"],["",""],
+  ["PgDn","pgdn","Transp.\n−1","ctl"],["↓","down","Octave\n−1","ctl"],["",""],
+  ["←","left","Key sig\n♭ side","ctl"],["",""],["→","right","Key sig\n♯ side","ctl"],
+];
+function kbLabel(k){
+  if (!(k in NOTE_KEYS)) return null;
+  const deg = NOTE_KEYS[k], L = LETTERS[deg % 7], oct = 4 + S.octave + Math.floor(deg / 7), a = ksAcc(L, S.ks);
+  return { txt: L + accSym(a) + oct, acc: !!a };
+}
+function kkHtml([cap, k, txt, cls]){
+  if (cap === "") return `<div></div>`;
+  const n = k ? kbLabel(k) : null;
+  if (n) return `<div class="kk note${n.acc ? " acc" : ""}" data-k="${k}"><b>${cap}</b><span>${n.txt}</span></div>`;
+  if (cls) return `<div class="kk ${cls}${cap.length > 2 ? " wide" : ""}" data-k="${k}"><b>${cap}</b><span style="font-size:12px;white-space:pre-line;text-align:center">${txt}</span></div>`;
+  return `<div class="kk blank"><b>${cap}</b></div>`;
+}
+function renderKb(){
+  $("kb").innerHTML = KB_ROWS.map((r, i) => `<div class="kbrow" style="margin-left:${[0, 26, 40, 66][i]}px">${r.map(kkHtml).join("")}</div>`).join("");
+  $("kbside").innerHTML = KB_SIDE.map(kkHtml).join("");
+}
+function kbDown(k, on){ document.querySelectorAll(`.kk[data-k="${CSS.escape(k)}"]`).forEach(el => el.classList.toggle("down", on)); }
+
+for (let k = -7; k <= 7; k++) ksSel.add(new Option(`${ksShort(k)}   (${MAJOR[k]} major / ${MINOR[k]} minor)`, k));
+for (let t = -12; t <= 12; t++) $("trSel").add(new Option((t > 0 ? "+" : "") + t + " semitone" + (Math.abs(t) === 1 ? "" : "s"), t));
+for (let o = -3; o <= 3; o++) $("octSel").add(new Option((o > 0 ? "+" : "") + o, o));
+for (const i of [0, 1]) for (const [n, v] of ROLES) $("role" + i).add(new Option(n, v));
+
+ksSel.onchange = () => setKs(+ksSel.value);
+$("ksDown").onclick = () => setKs(S.ks - 1);
+$("ksUp").onclick = () => setKs(S.ks + 1);
+$("semiSel").onchange = e => { S.semi = e.target.value; store.set(); };
+$("trSel").onchange = e => { S.transpose = +e.target.value; store.set(); };
+$("octSel").onchange = e => { S.octave = +e.target.value; renderKb(); };
+$("fixChk").onchange = $("fixVal").onchange = () => {
+  const v = Math.max(1, Math.min(127, +$("fixVal").value || 100));
+  S.fixVel = $("fixChk").checked ? v : 0; store.set();
+};
+$("monoChk").onchange = e => { S.mono = e.target.checked; store.set(); };
+for (const i of [0, 1]) $("role" + i).onchange = e => { S.slots[i].role = e.target.value; S.inst.clear(); renderMods(); store.set(); };
+document.querySelectorAll("[data-learn]").forEach(b => b.onclick = () => {
+  const k = +b.dataset.learn; S.learning = k;
+  $("cc" + k).textContent = "Waiting…";
+  monitor("Learning: press the instrument key to use as key " + (k + 1), "warn");
+});
+
+/* ───────── MIDI ports ───────── */
+function fillPorts(){
+  const saved = store.get();
+  const ins = [...access.inputs.values()], outs = [...access.outputs.values()];
+  const keepIn = inSel.selectedOptions[0]?.textContent || saved.inName;
+  const keepOut = outSel.selectedOptions[0]?.textContent || saved.outName;
+  inSel.innerHTML = ""; outSel.innerHTML = "";
+  inSel.add(new Option("— None (play with computer keyboard) —", ""));
+  outSel.add(new Option("— None (built-in sound) —", ""));
+  ins.forEach(p => inSel.add(new Option(p.name, p.id)));
+  outs.forEach(p => outSel.add(new Option(p.name, p.id)));
+  const pick = (sel, list, keep, words) => {
+    let p = list.find(x => x.name === keep) || list.find(x => words.some(w => x.name.toLowerCase().includes(w)));
+    if (p) sel.value = p.id;
+  };
+  pick(inSel, ins, keepIn, ["clarii", "robkoo", "나의프로", "aerophone", "ewi"]);
+  pick(outSel, outs, keepOut, ["iac", "버스", "bus"]);
+  connect();
+}
+let lastPair = null;
+function connect(){
+  if (inPort) inPort.onmidimessage = null;
+  inPort = access.inputs.get(inSel.value) || null;
+  outPort = access.outputs.get(outSel.value) || null;
+  if (inPort) inPort.onmidimessage = onMidi;
+  S.active.clear(); S.outCount.clear(); S.inst.clear();
+  $("selfRow").hidden = !outPort;
+  const pair = (inPort ? inPort.name : "") + "|" + (outPort ? outPort.name : "");
+  if (pair !== lastPair) {                 // 포트가 바뀔 때만 자동 판단 (같은 기기면 켬)
+    lastPair = pair;
+    const same = inPort && outPort && (inPort.name === outPort.name ||
+      ["clarii", "robkoo"].some(w => inPort.name.toLowerCase().includes(w) && outPort.name.toLowerCase().includes(w)));
+    $("selfChk").checked = !!same;
+  }
+  const st = $("midiStatus");
+  const parts = [];
+  parts.push(inPort ? "Input: " + inPort.name : "No input — play with computer keyboard");
+  parts.push(outPort ? "Output: " + outPort.name : "No output port (built-in sound)");
+  if (synthChk.checked) parts.push("Built-in sound on");
+  if (synthChk.checked && outPort) parts.push("⚠ Sound also goes to Logic etc. Set output to 'None' to hear only the built-in sound");
+  $("selfNote").hidden = !selfMode();
+  if (selfMode()) parts.push("Sending back to the instrument — original-note silencing on");
+  st.textContent = parts.join("   |   ");
+  st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
+  if (!outPort && !synthChk.checked && access.outputs.size === 0)
+    st.textContent += "  — please turn on the IAC Driver (see How to use)";
+  store.set();
+}
+inSel.onchange = outSel.onchange = connect;
+$("selfChk").onchange = connect;
+
+async function initMidi(){
+  const st = $("midiStatus");
+  if (!navigator.requestMIDIAccess){
+    st.textContent = "This browser does not support Web MIDI. Please open it in Chrome or Edge on Mac/Windows. (Safari, iPad and iPhone are not supported)";
+    st.className = "status warn"; return;
+  }
+  try {
+    access = await navigator.requestMIDIAccess({ sysex: false });
+    access.onstatechange = () => fillPorts();
+    fillPorts();
+  } catch(e){
+    st.textContent = "MIDI permission was denied. Allow MIDI device access from the icon at the left of the address bar, then reload.";
+    st.className = "status warn";
+  }
+}
+
+/* ───────── Computer keyboard ───────── */
+const CODE = {KeyA:"a",KeyS:"s",KeyD:"d",KeyF:"f",KeyG:"g",KeyH:"h",KeyJ:"j",KeyK:"k",KeyL:"l",Semicolon:";",
+              KeyQ:"q",KeyW:"w",KeyE:"e",Digit0:"0",ArrowLeft:"left",ArrowRight:"right",ArrowUp:"up",ArrowDown:"down",
+              PageUp:"pgup",PageDown:"pgdn",Escape:"esc"};
+const NOTE_KEYS = {a:0,s:1,d:2,f:3,g:4,h:5,j:6,k:7,l:8,";":9};
+const held = new Set();
+function kbNote(k){
+  const deg = NOTE_KEYS[k], L = LETTERS[deg % 7], oct = 4 + S.octave + Math.floor(deg / 7);
+  let acc = isNat() ? 0 : ksAcc(L, S.ks);
+  if (S.kmods.has("q")) acc -= 1;
+  if (S.kmods.has("w")) acc += 1;
+  const written = 12 * (oct + 1) + BASE[L] + acc, out = written + S.transpose;
+  if (out < 0 || out > 127) return;
+  const ch = 0; addOut(ch, out); noteOn(ch, out, S.fixVel || 100);
+  S.kbActive.set(k, {ch, out});
+  show(`${L}${accSym(acc)}${oct}   (MIDI ${written})` + (S.transpose ? `  → sounding ${out}` : ""));
+}
+document.addEventListener("keydown", e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.matches("input[type=number]")) return;
+  const k = CODE[e.code]; if (!k) return;
+  e.preventDefault();
+  if (held.has(k)) return; held.add(k); kbDown(k, true);
+  if ("qwe".includes(k) && k.length === 1){ S.kmods.add(k); remapHeld(); renderMods(); return; }
+  if (k in NOTE_KEYS){ if (!inPort) kbNote(k); return; }
+  if (k === "right") setKs(S.ks + 1);
+  else if (k === "left") setKs(S.ks - 1);
+  else if (k === "0") setKs(0);
+  else if (k === "up"){ S.octave = Math.min(3, S.octave + 1); $("octSel").value = S.octave; renderKb(); }
+  else if (k === "down"){ S.octave = Math.max(-3, S.octave - 1); $("octSel").value = S.octave; renderKb(); }
+  else if (k === "pgup"){ S.transpose = Math.min(12, S.transpose + 1); $("trSel").value = S.transpose; store.set(); }
+  else if (k === "pgdn"){ S.transpose = Math.max(-12, S.transpose - 1); $("trSel").value = S.transpose; store.set(); }
+  else if (k === "esc") allNotesOff();
+});
+document.addEventListener("keyup", e => {
+  const k = CODE[e.code]; if (!k) return;
+  held.delete(k); kbDown(k, false);
+  if ("qwe".includes(k) && k.length === 1){ S.kmods.delete(k); remapHeld(); renderMods(); }
+  const a = S.kbActive.get(k); if (a){ S.kbActive.delete(k); release(a.ch, a.out); }
+});
+window.addEventListener("blur", () => { held.clear(); S.kmods.clear(); renderMods(); document.querySelectorAll(".kk.down").forEach(el => el.classList.remove("down")); });
+
+/* ───────── Built-in sound: FluidSynth (js-synthesizer) + SoundFont ───────── */
+const LIB = window.KEYSIG_LIB || {   // pinned versions; if the first URL fails, try the next
+  main:    ["https://cdn.jsdelivr.net/npm/js-synthesizer@1.13.0/dist/js-synthesizer.min.js",
+            "https://unpkg.com/js-synthesizer@1.13.0/dist/js-synthesizer.min.js"],
+  fluid:   ["https://cdn.jsdelivr.net/npm/js-synthesizer@1.13.0/externals/libfluidsynth-2.4.6.js",
+            "https://unpkg.com/js-synthesizer@1.13.0/externals/libfluidsynth-2.4.6.js"],
+  worklet: ["https://cdn.jsdelivr.net/npm/js-synthesizer@1.13.0/dist/js-synthesizer.worklet.min.js",
+            "https://unpkg.com/js-synthesizer@1.13.0/dist/js-synthesizer.worklet.min.js"],
+  sf2:     ["https://unpkg.com/generaluser@1.47.1/GeneralUser.sf2",
+            "https://cdn.jsdelivr.net/npm/generaluser@1.47.1/GeneralUser.sf2"],
+};
+const WIND_FIRST = [65,64,66,67,71,73,72,68,69,70,74,75,79,77,78,76,56,59,57,58,60,61,22,21,40,41,42,43,48,52,80,81];
+
+const sfDB = {   // keep SoundFonts in the browser (so they need not be downloaded again)
+  open(){ return new Promise((ok, no) => { const r = indexedDB.open("keysig-sf", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("sf"); r.onsuccess = () => ok(r.result); r.onerror = () => no(r.error); }); },
+  async get(k){ try { const db = await this.open(); return await new Promise(ok => {
+    const q = db.transaction("sf").objectStore("sf").get(k); q.onsuccess = () => ok(q.result || null); q.onerror = () => ok(null); }); } catch(e){ return null; } },
+  async put(k, v){ try { const db = await this.open(); db.transaction("sf", "readwrite").objectStore("sf").put(v, k); } catch(e){} }
+};
+function loadScript(urls){
+  return urls.reduce((p, u) => p.catch(() => new Promise((ok, no) => {
+    const el = document.createElement("script"); el.src = u; el.onload = ok; el.onerror = no; document.head.appendChild(el);
+  })), Promise.reject());
+}
+async function addModule(ctx, urls){
+  for (const u of urls) { try { await ctx.audioWorklet.addModule(u); return; } catch(e){} }
+  throw new Error("worklet");
+}
+async function fetchProgress(urls, onp){
+  for (const u of urls) {
+    try {
+      const res = await fetch(u); if (!res.ok) continue;
+      const total = +res.headers.get("content-length") || 31281186, reader = res.body.getReader();
+      const chunks = []; let got = 0;
+      for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); got += value.length; onp(got / total); }
+      const buf = new Uint8Array(got); let o = 0; for (const c of chunks) { buf.set(c, o); o += c.length; }
+      return buf.buffer;
+    } catch(e){}
+  }
+  throw new Error("download");
+}
+
+const synth = (() => {
+  let ctx = null, gainNode = null, fs = null, fsReady = null, on = false;
+  const ids = { default: null, user: null };
+  let presets = [];                          // {bank, num, name, sf}
+  const sounding = [];                       // notes sounding on each channel
+  const simple = { voices: new Map(), filter: null, master: null, breath: false };
+  const $st = () => $("sfStatus");
+  const status = (t, cls) => { $st().textContent = t; $st().className = "status" + (cls ? " " + cls : ""); };
+  const mode = () => $("sfSel").value;
+
+  function ensureCtx(){
+    if (ctx) return;
+    ctx = new (window.AudioContext || window.webkitAudioContext)({ latencyHint: "interactive" });
+    gainNode = ctx.createGain(); gainNode.connect(ctx.destination); setVol();
+    simple.filter = ctx.createBiquadFilter(); simple.filter.type = "lowpass"; simple.filter.frequency.value = 2400;
+    simple.master = ctx.createGain(); simple.master.gain.value = 0.3; simple.filter.connect(simple.master).connect(gainNode);
+  }
+  function setVol(){ if (gainNode) gainNode.gain.value = Math.pow(+$("volRng").value / 100, 1.5) * 1.6; }
+
+  function startFluid(){
+    if (fsReady) return fsReady;
+    fsReady = (async () => {
+      status("Loading sound engine…");
+      await loadScript(LIB.main);
+      await addModule(ctx, LIB.fluid);
+      await addModule(ctx, LIB.worklet);
+      fs = new JSSynth.AudioWorkletNodeSynthesizer();
+      fs.init(ctx.sampleRate);
+      const node = fs.createAudioNode(ctx, { midiChannelCount: 16, reverbActive: true, chorusActive: false });
+      node.connect(gainNode);
+    })();
+    fsReady.catch(e => { fsReady = null; status("Could not load the sound engine (" + (e && e.message || e) + "). Check that Chrome is up to date and you are online.", "warn"); });
+    return fsReady;
+  }
+  async function ensureFont(which){
+    await startFluid();
+    if (ids[which] !== null) return ids[which];
+    let buf = await sfDB.get(which);
+    if (!buf && which === "default") {
+      buf = await fetchProgress(LIB.sf2, p => status("Downloading default SoundFont… " + Math.min(99, Math.round(p * 100)) + "%  (first time only, about 30 MB)"));
+      sfDB.put("default", buf);
+    }
+    if (!buf) throw new Error("nofont");
+    const data = buf.data || buf;            // user: {data, name}
+    ids[which] = await fs.loadSFont(data);
+    return ids[which];
+  }
+  async function listPresets(which){
+    const id = await ensureFont(which);
+    const sf = await fs.getSFontObject(id);
+    const arr = [...(await sf.getPresetIterable())].map(p => ({ bank: p.bankNum, num: p.num, name: p.name, sf: id }));
+    arr.sort((a, b) => a.bank - b.bank || a.num - b.num);
+    return arr;
+  }
+  function fillPresets(arr, keep){
+    presets = arr;
+    const sel = $("presetSel"); sel.innerHTML = "";
+    const isGM = mode() === "default";
+    const label = p => (p.bank === 0 && isGM ? `${p.num + 1}. ${p.name}` : `${p.bank}:${p.num + 1}  ${p.name}`);
+    const melodic = arr.filter(p => p.bank < 120);
+    const wind = isGM ? WIND_FIRST.map(n => melodic.find(p => p.bank === 0 && p.num === n)).filter(Boolean) : [];
+    if (wind.length) {
+      const g = document.createElement("optgroup"); g.label = "Winds & favorites";
+      wind.forEach(p => g.appendChild(new Option(label(p), p.bank + ":" + p.num))); sel.appendChild(g);
+    }
+    const g2 = document.createElement("optgroup"); g2.label = isGM ? "All 128 instruments (GM)" : "All instruments";
+    melodic.forEach(p => g2.appendChild(new Option(label(p), p.bank + ":" + p.num))); sel.appendChild(g2);
+    const want = keep || (isGM ? "0:65" : melodic[0] && melodic[0].bank + ":" + melodic[0].num);
+    if ([...sel.options].some(o => o.value === want)) sel.value = want;
+    applyPreset();
+  }
+  function applyPreset(){
+    if (!fs || !presets.length) return;
+    const [bank, num] = $("presetSel").value.split(":").map(Number);
+    const p = presets.find(x => x.bank === bank && x.num === num); if (!p) return;
+    for (let ch = 0; ch < 16; ch++) { fs.midiSetChannelType(ch, false); fs.midiProgramSelect(ch, p.sf, p.bank, p.num); }
+    status("Sound: " + $("presetSel").selectedOptions[0].textContent, "ok");
+  }
+  async function switchSource(keep){
+    if (!on) return;
+    ensureCtx(); await ctx.resume();
+    if (mode() === "simple") { presets = []; $("presetSel").innerHTML = "<option>Simple synth</option>"; status("Sound: simple synth", "ok"); return; }
+    const ps = $("presetSel");
+    ps.innerHTML = "<option>⏳ Loading instrument list… (see status line below)</option>";
+    try { fillPresets(await listPresets(mode()), keep); }
+    catch(e){
+      ps.innerHTML = "<option>⚠ Could not load the instrument list — turn the built-in sound off and on to retry</option>";
+      status(mode() === "user" ? "Please load your sf2 again."
+        : !fsReady ? "Could not load the sound engine. Check that Chrome is up to date and you are online."
+        : "Could not download the default SoundFont. Check your connection, or load an sf2 yourself.", "warn");
+    }
+  }
+  async function loadUserFile(file){
+    const data = await file.arrayBuffer();
+    on = true; synthChk.checked = true; ensureCtx(); await ctx.resume();
+    try {
+      await startFluid();
+      if (ids.user !== null) { try { fs.unloadSFont(ids.user); } catch(e){} ids.user = null; }
+      await sfDB.put("user", { data, name: file.name });
+      ids.user = await fs.loadSFont(data);
+      const o = $("sfSel").querySelector('option[value="user"]'); o.disabled = false; o.textContent = "My sf2: " + file.name;
+      $("sfSel").value = "user"; await switchSource(); store.set(); connect();
+    } catch(e){ status("Could not read the sf2 file: " + file.name, "warn"); }
+  }
+
+  /* Simple synth (no download) */
+  function simpleHandle(b){
+    const type = b[0] & 0xF0, n = b[1], v = b[2], hz = 440 * Math.pow(2, (n - 69) / 12);
+    if (type === 0x90 && v > 0) {
+      simple.voices.get(n)?.stop();
+      const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), g = ctx.createGain(), t = ctx.currentTime;
+      o1.type = "sawtooth"; o2.type = "triangle"; o1.frequency.value = o2.frequency.value = hz; o2.detune.value = 6;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(simple.breath ? 0.5 : 0.5 * v / 127, t + 0.03);
+      o1.connect(g); o2.connect(g); g.connect(simple.filter); o1.start(); o2.start();
+      simple.voices.set(n, { stop(){ const t2 = ctx.currentTime; g.gain.cancelScheduledValues(t2); g.gain.setTargetAtTime(0, t2, 0.04); o1.stop(t2 + .3); o2.stop(t2 + .3); } });
+    } else if (type === 0x80 || (type === 0x90 && v === 0)) { simple.voices.get(n)?.stop(); simple.voices.delete(n); }
+    else if (type === 0xB0 && BREATH_CC.has(n)) {
+      simple.breath = true; const t = ctx.currentTime, x = v / 127;
+      simple.master.gain.setTargetAtTime(0.38 * x, t, 0.02); simple.filter.frequency.setTargetAtTime(500 + 3500 * x, t, 0.03);
+    } else if (type === 0xB0 && n === 123) { for (const [, vc] of simple.voices) vc.stop(); simple.voices.clear(); }
+  }
+
+  return {
+    enable(v){
+      on = v;
+      if (v) { ensureCtx(); ctx.resume(); switchSource($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset); }
+      else { if (fs) fs.midiAllNotesOff(); for (const [, vc] of simple.voices) vc.stop(); simple.voices.clear(); status("Built-in sound off"); }
+    },
+    handle(b){
+      if (!on || !ctx) return;
+      if (mode() === "simple") return simpleHandle(b);
+      if (!fs) return;
+      const type = b[0] & 0xF0, ch = b[0] & 0x0F, d1 = b[1], d2 = b[2];
+      const snd = sounding[ch] || (sounding[ch] = new Set());
+      if (type === 0x90 && d2 > 0) {
+        if (S.mono) { for (const n of snd) if (n !== d1) fs.midiNoteOff(ch, n); snd.clear(); }  // mono: stop the previous note first
+        fs.midiNoteOn(ch, d1, d2); snd.add(d1);
+      }
+      else if (type === 0x80 || type === 0x90) { fs.midiNoteOff(ch, d1); snd.delete(d1); }
+      else if (type === 0xB0) {
+        if (d1 === 123) { fs.midiAllNotesOff(ch); (sounding[ch] || new Set()).clear(); return; }
+        if (d1 === 0 || d1 === 32 || d1 === 121) return;   // ignore bank select / reset controllers (keep chosen instrument)
+        if (d1 === 64 || d1 === 65 || d1 === 66 || d1 === 68 || d1 === 84 || d1 === 126 || d1 === 127) return; // ignore sustain/portamento/legato/mono-poly (avoid doubled notes)
+        fs.midiControl(ch, d1 === 2 ? 11 : d1, d2);   // CC2 (breath) mapped to expression for volume
+      }
+      else if (type === 0xE0) fs.midiPitchBend(ch, (d2 << 7) | d1);
+      else if (type === 0xD0) fs.midiChannelPressure(ch, d1);
+      else if (type === 0xA0) fs.midiKeyPressure(ch, d1, d2);
+    },
+    initUI(){
+      const saved = store.get();
+      if (typeof saved.vol === "number") $("volRng").value = saved.vol;
+      sfDB.get("user").then(u => { if (u && u.name) { const o = $("sfSel").querySelector('option[value="user"]'); o.disabled = false; o.textContent = "My sf2: " + u.name;
+        if (saved.sf === "user") $("sfSel").value = "user"; } });
+      if (saved.sf && saved.sf !== "user") $("sfSel").value = saved.sf;
+      synthChk.onchange = () => { synth.enable(synthChk.checked); store.set(); connect(); };
+      $("volRng").oninput = () => { setVol(); store.set(); };
+      $("sfSel").onchange = () => { store.set(); switchSource(); };
+      $("presetSel").onchange = () => { applyPreset(); store.set(); };
+      $("sfBtn").onclick = () => $("sfFile").click();
+      $("testBtn").onclick = async () => {
+        if (!synthChk.checked) { synthChk.checked = true; synth.enable(true); store.set(); connect(); }
+        await (fsReady || Promise.resolve()).catch(() => {});
+        const play = (n, t) => setTimeout(() => { this.handle([0xB0, 7, 110]); this.handle([0x90, n, 100]);
+          setTimeout(() => this.handle([0x80, n, 0]), 380); }, t);
+        play(60, 0); play(64, 420); play(67, 840);
+      };
+      $("sfFile").onchange = e => { const f = e.target.files[0]; if (f) loadUserFile(f); e.target.value = ""; };
+      if (synthChk.checked) { status("Tap (click) the page once to turn on the built-in sound");
+        $("presetSel").innerHTML = "<option>Tap the page once to load the instrument list</option>"; }
+    },
+    _test: () => ({ fs, ctx, gainNode }),
+  };
+})();
+
+/* ───────── Item help (only when the Help button is on) ───────── */
+const HELP = {
+  "#inSel": "Choose the instrument (Clarii, etc.).\n\"Clarii PRO\" for USB, \"…Bluetooth\" for Bluetooth.\n\"None\" plays from the computer keyboard.",
+  "#outSel": "Where notes with the key signature applied are sent.\nFor Logic / MainStage choose \"IAC Driver Bus 1\".\nChoose \"None\" when using only the built-in sound.",
+  "#selfChk": "Turn on when the output is the instrument (Clarii) itself.\nBefore sending the key-signature note, a Note Off is sent for the note the instrument played, preventing doubled sound.\n(Instrument in normal mode, not MIDI Mode; the original note may be heard very briefly at the start)",
+  "#midiStatus": "Current input/output connection status.\nGreen means OK.",
+  "#actRow": "The green light blinks when a signal arrives from the instrument.\nIf \"Note\" never blinks, check the input device and permission.",
+  "#synthChk": "Play sound directly in the browser (no Logic needed).\nThe SoundFont (about 30 MB) is downloaded the first time.",
+  "#volRng": "Overall volume of the built-in sound.\nDynamics while playing follow your breath.",
+  "#sfSel": "Choose the sound source.\nDefault (GeneralUser GS, 128 instruments) / your own sf2 / simple synth.",
+  "#sfBtn": "Load a downloaded .sf2 file (.sf3 and zip not supported).\nOnce loaded it is kept for next time.",
+  "#presetSel": "Choose the instrument to play.\nWind instruments are listed first.",
+  "#testBtn": "Plays C-E-G using only the browser sound.\nUse it to check that the instrument sound changes.",
+  "#ksDown": "Move the key signature one step toward ♭ (keyboard ←).",
+  "#ksUp": "Move the key signature one step toward ♯ (keyboard →).",
+  "#ksSel": "Choose the key signature of the score.\nE.g. 4 ♭ = A♭ major / F minor. Key 0 = Off.",
+  "#keys": "The notes your natural fingerings actually produce.\nRed letters are notes altered by the key signature.\n(Small letters above: computer keyboard keys)",
+  "#big": "The note just played and its MIDI number.",
+  "#mods": "The ♮ / ♯ / ♭ keys currently in effect.",
+  "#semiSel": "How semitone keys such as LP1 / LP2 are interpreted.\n\"Auto\" recommended: in flat keys D + LP1 → D♮, relative to the key-signature note.",
+  "#cc0": "The controller number sent by instrument key 1 (✱1).",
+  "#cc1": "The controller number sent by instrument key 2 (✱2).",
+  "[data-learn]": "Click, then press a key on the instrument to assign its controller number automatically.",
+  "#role0": "What the ✱1 key does while held.\n♮ = cancel key signature, ♯ = raise a semitone, ♭ = lower a semitone.\n(Clarii: MIDI Mode + set ✱ keys to Artl.)",
+  "#role1": "What the ✱2 key does while held.\nE.g. in A♭ major, E fingering + ✱2 (♯) → E♮.",
+  "#fixChk": "When on, notes are sent at a fixed velocity regardless of tonguing strength.\n(Recommended for wind instruments; turn off for MIDI keyboards)",
+  "#fixVal": "Fixed velocity value (1–127).",
+  "#monoChk": "Plays only one note at a time.\nPrevents hanging or doubled notes (recommended for wind instruments).",
+  "#trSel": "Shifts all notes by semitones (after the key signature is applied).",
+  "#octSel": "Octave used when playing from the computer keyboard.",
+  "#mon": "Shows signals received from the instrument (excluding breath).\nUse it to check that the ✱ keys send signals.",
+  "#themeBtn": "Switch between light and dark screens.",
+  "#kb": "Blue keys = play (with current key signature and octave), red keys = ♭ / ♯ / ♮ while held, green keys = controls.\nPressed keys are highlighted in the diagram too.",
+  "#kbside": "↑↓ octave, PgUp/PgDn transpose, ←→ key signature.\n(MacBook: PgUp = fn+↑, PgDn = fn+↓)",
+};
+for (const [sel, txt] of Object.entries(HELP)) document.querySelectorAll(sel).forEach(el => el.dataset.help = txt);
+(() => {
+  const tip = $("tip"), btn = $("helpBtn");
+  let on = false;
+  const setOn = v => { on = v; document.body.classList.toggle("help-on", v); btn.classList.toggle("on", v);
+    btn.textContent = v ? "✓ Help on" : "? Help"; if (!v) tip.style.display = "none"; };
+  btn.onclick = () => setOn(!on);
+  document.addEventListener("mousemove", e => {
+    if (!on) return;
+    const el = e.target.closest && e.target.closest("[data-help]");
+    if (!el) { tip.style.display = "none"; return; }
+    tip.textContent = el.dataset.help; tip.style.display = "block";
+    const w = tip.offsetWidth, h = tip.offsetHeight, z = parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    let x = e.clientX / z + 14, y = e.clientY / z + 16;
+    if (x + w > innerWidth / z - 8) x = e.clientX / z - w - 14;
+    if (y + h > innerHeight / z - 8) y = e.clientY / z - h - 12;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  });
+  document.addEventListener("mouseleave", () => tip.style.display = "none");
+})();
+
+/* ───────── Theme ───────── */
+$("themeBtn").onclick = () => {
+  const r = document.documentElement, dark = getComputedStyle(r).getPropertyValue("--bg").trim() === "#14171d";
+  r.dataset.theme = dark ? "light" : "dark";
+  try { localStorage.setItem("keysig-theme", r.dataset.theme); } catch(e){}
+};
+try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentElement.dataset.theme = t; } catch(e){}
+
+/* ───────── Start ───────── */
+(function restore(){
+  const s = store.get();
+  if (typeof s.ks === "number") S.ks = s.ks;
+  if (typeof s.transpose === "number") S.transpose = s.transpose;
+  if (s.semi) S.semi = s.semi;
+  if (typeof s.fixVel === "number") S.fixVel = s.fixVel;
+  if (typeof s.mono === "boolean") S.mono = s.mono;
+  if (Array.isArray(s.slots) && s.slots.length === 2) S.slots = s.slots;
+  $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
+  $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
+  $("monoChk").checked = S.mono;
+  if (s.synth) synthChk.checked = true;
+  renderKeys(); renderSlots(); renderMods();
+})();
+synth.initUI();
+document.addEventListener("pointerdown", () => { if (synthChk.checked) synth.enable(true); }, { once: true });
+initMidi();
+</script>
+</body>
+</html>
