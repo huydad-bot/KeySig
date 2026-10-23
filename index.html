@@ -120,7 +120,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   <div id="tip"></div>
   <h1>KeySig MIDI</h1>
   <p class="sub">아래 조표(Key Signature)를 지정한 후 자연음 운지로 연주하면 조표의 ♯/♭이 맞춤 적용됨 (Chrome·Edge 전용)<br>
-    Clarii Pro 20 기준 (Clarii mini, re.corder 등은 제자리표 처리 완벽하지 않음)</p>
+    Clarii Pro 20 기준 (Clarii mini, re.corder 등은 ♮ 처리 완벽하지 않음)</p>
 
   <div class="card" id="midiCard">
     <h2>연결</h2>
@@ -495,7 +495,7 @@ function fillPorts(){
   const keepOut = outSel.selectedOptions[0]?.textContent || saved.outName;
   inSel.innerHTML = ""; outSel.innerHTML = "";
   inSel.add(new Option("— 없음 (컴퓨터 키보드로 연주) —", ""));
-  outSel.add(new Option("— 없음 —", ""));
+  outSel.add(new Option("— 없음 (컴퓨터 내장음) —", ""));
   ins.forEach(p => inSel.add(new Option(p.name, p.id)));
   outs.forEach(p => outSel.add(new Option(p.name, p.id)));
   const pick = (sel, list, keep, words) => {
@@ -515,7 +515,7 @@ function connect(){
   const st = $("midiStatus");
   const parts = [];
   parts.push(inPort ? "입력: " + inPort.name : "입력 없음 — 컴퓨터 키보드로 연주");
-  parts.push(outPort ? "출력: " + outPort.name : "출력 포트 없음");
+  parts.push(outPort ? "출력: " + outPort.name : "출력 포트 없음 (컴퓨터 내장음)");
   if (synthChk.checked) parts.push("내장 소리 켜짐");
   if (synthChk.checked && outPort) parts.push("⚠ Logic 등으로도 소리가 나갑니다. 내장 소리만 들으려면 출력을 '없음'으로");
   st.textContent = parts.join("   |   ");
