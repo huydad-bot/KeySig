@@ -66,6 +66,7 @@ button:active{transform:translateY(1px)}
 .big{font-size:55px;font-weight:700;text-align:center;margin:6px 0 0;min-height:60px}
 .mods{text-align:center;color:var(--sharp);min-height:22px;font-weight:600}
 .slot{display:grid;grid-template-columns:auto auto auto 1fr;gap:8px;align-items:center;margin:6px 0}
+.adv label{font-size:15.5px;color:var(--muted)}
 .slot .cc{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;min-width:52px}
 .act{font-size:14px;color:var(--muted)}
 .led{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block;transition:background .15s}
@@ -202,6 +203,8 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <button data-learn="1">학습</button>
       <select id="role1"></select>
     </div>
+    <div class="row adv"><label><input type="checkbox" id="advChk"> 고급: ✱키에 ♯ 올림 / ♭ 내림 역할도 쓰기</label></div>
+    <p class="help" id="advNote" hidden>보통은 ✱키를 ♮(제자리표)로만 쓰고 반음은 악기의 반음 키 운지로 냅니다. ♯/♭ 역할은 운지를 바꾸지 않는 반음 트릴(✱키를 두드림)이나 F𝄪·E♯ 같은 음을 악보 글자대로 연주할 때만 필요합니다.</p>
     <div class="row">
       <label><input type="checkbox" id="fixChk" checked> 벨로시티 고정</label>
       <input type="number" id="fixVal" min="1" max="127" value="100">
@@ -241,13 +244,13 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
         <li><b>Logic Pro</b>: 설정 → MIDI → 입력에서 <b>Clarii 항목 체크 해제</b>, IAC 드라이버만 체크.<br>
             <b>MainStage</b>: 레이아웃 모드 → 건반 그림 → 입력을 <b>IAC 드라이버</b>로.</li>
         <li><b>Logic 없이</b> 연주하려면 "내장 소리 켜기"를 체크하고 악기를 고릅니다. 처음 한 번 기본 사운드폰트(약 30MB)를 내려받고, 이후에는 브라우저에 저장됩니다. 다른 .sf2 파일은 [sf2 불러오기]로 넣을 수 있습니다. 이때 Logic으로 보내지 않으려면 출력을 "없음"으로 둡니다.</li>
-        <li>조표를 고르고 연주합니다. ✱1 = ♮(조표 해제), ✱2 = ♯ 올림 (Clarii Controllers에서 ✱키를 Artl.로 설정).</li>
+        <li>조표를 고르고 연주합니다. ✱1·✱2 = ♮(조표 해제) — 예: ✱1은 왼손(1·2·3), ✱2는 오른손(4·5·6) 손가락용. 반음은 악기의 반음 키 운지로 냅니다 (Clarii Controllers에서 ✱키를 Artl.로 설정). ♯/♭ 역할은 '고급'을 켜면 고를 수 있습니다.</li>
         <li><b>입력·출력 모두 Clarii PRO</b>로 쓰려면(Clarii 본체 소리로 연주) Clarii를 <b>MIDI Mode가 아닌 System(일반) 모드</b>로 둡니다. MIDI Mode에서는 받은 음이 기기에서 소리 나지 않습니다. "원래 음 끄기"가 켜져 있어야 2중 소리가 나지 않습니다.</li>
       </ol>
       <p class="help">컴퓨터 키보드(이 페이지가 앞에 있을 때): A S D F G H J = C D E F G A B, K L ; = 위 C D E,
         Q/W/E 누른 채 = ♭/♯/♮, ←/→ 조표, 0 조표 Off, ↑/↓ 옥타브, Esc 모든 음 끄기.
         악기가 연결되어 있으면 키보드로는 음이 나지 않고 조작만 됩니다.</p>
-      <p class="help">한계: E+반음 키(=F)처럼 결과가 흰건반 음이면 일반 운지와 구분할 수 없어 ✱2 키를 사용합니다.</p>
+      <p class="help">참고: E+반음 키(=F)처럼 결과가 흰건반 음이면 일반 운지와 구분되지 않아 조표가 적용됩니다. 이때는 ✱(♮)를 누른 채 그 음(F)을 불거나, '고급'의 ♯ 역할을 씁니다.</p>
     </details>
   </div>
 </main>
@@ -276,7 +279,7 @@ function ksAcc(letter, ks){
 /* ───────── 상태 ───────── */
 const S = {
   ks:0, transpose:0, octave:0, semi:"auto", fixVel:100, mono:true,
-  slots:[{cc:80, role:"nat"}, {cc:81, role:"sharp"}],
+  slots:[{cc:80, role:"nat"}, {cc:81, role:"nat"}], adv:false,
   inst:new Set(),            // 악기 키로 눌린 역할
   kmods:new Set(),           // 컴퓨터 키보드 q/w/e
   learning:-1,
@@ -288,7 +291,7 @@ const S = {
 const store = {
   get(){ try { return JSON.parse(localStorage.getItem("keysig") || "{}"); } catch(e){ return {}; } },
   set(){ try { localStorage.setItem("keysig", JSON.stringify({
-      ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots,
+      ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots, adv:S.adv,
       inName:inSel.selectedOptions[0]?.textContent, outName:outSel.selectedOptions[0]?.textContent,
       synth:synthChk.checked, sf:$("sfSel").value, preset:($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset), vol:+$("volRng").value })); } catch(e){} }
 };
@@ -488,7 +491,23 @@ function kbDown(k, on){ document.querySelectorAll(`.kk[data-k="${CSS.escape(k)}"
 for (let k = -7; k <= 7; k++) ksSel.add(new Option(`${ksShort(k)}   (${MAJOR[k]} major / ${MINOR[k]} minor)`, k));
 for (let t = -12; t <= 12; t++) $("trSel").add(new Option((t > 0 ? "+" : "") + t + " 반음", t));
 for (let o = -3; o <= 3; o++) $("octSel").add(new Option((o > 0 ? "+" : "") + o, o));
-for (const i of [0, 1]) for (const [n, v] of ROLES) $("role" + i).add(new Option(n, v));
+/* ✱키 역할 목록: ♯/♭은 '고급'을 직접 켰을 때만 보임 (처음에는 꺼진 상태) */
+function fillRoles(){
+  const adv = S.adv;
+  if (!adv) S.slots.forEach(s => { if (s.role === "sharp" || s.role === "flat") s.role = "nat"; });
+  $("advChk").checked = adv; $("advNote").hidden = !adv;
+  for (const i of [0, 1]) {
+    const sel = $("role" + i); sel.length = 0;
+    for (const [n, v] of ROLES) if (adv || v === "" || v === "nat") sel.add(new Option(n, v));
+    sel.value = S.slots[i].role;
+  }
+}
+fillRoles();
+$("advChk").onchange = e => {
+  S.adv = e.target.checked;
+  if (!S.adv) S.slots.forEach(s => { if (s.role === "sharp" || s.role === "flat") s.role = "nat"; });
+  S.inst.clear(); fillRoles(); renderMods(); store.set();
+};
 
 ksSel.onchange = () => setKs(+ksSel.value);
 $("ksDown").onclick = () => setKs(S.ks - 1);
@@ -874,8 +893,8 @@ const HELP = {
   "#cc0": "악기 키 1(✱1)이 보내는 신호 번호입니다.",
   "#cc1": "악기 키 2(✱2)가 보내는 신호 번호입니다.",
   "[data-learn]": "누른 뒤 악기의 키를 누르면 그 신호 번호로 자동 지정됩니다.",
-  "#role0": "✱1 키를 누르는 동안의 역할입니다.\n♮ = 조표 해제, ♯ = 반음 올림, ♭ = 반음 내림.\n(Clarii: MIDI Mode + ✱키를 Artl.로 설정)",
-  "#role1": "✱2 키를 누르는 동안의 역할입니다.\n예: A♭장조에서 E 운지 + ✱2(♯) → E♮.",
+  "#role0": "✱1 키를 누르는 동안의 역할입니다.\n♮ = 조표 해제 (♯ 올림 / ♭ 내림은 '고급'을 켜면 보입니다).\n(Clarii: MIDI Mode + ✱키를 Artl.로 설정)",
+  "#role1": "✱2 키를 누르는 동안의 역할입니다.\n♮ = 조표 해제 (♯/♭은 '고급'을 켜면 보입니다).",
   "#fixChk": "켜면 텅잉 세기와 관계없이 일정한 세기로 보냅니다.\n(관악기 권장, MIDI 건반은 끄기)",
   "#fixVal": "고정할 세기 값 (1~127).",
   "#monoChk": "한 번에 한 음만 냅니다.\n이전 음이 남거나 겹치는 것을 막습니다 (관악기 권장).",
@@ -924,11 +943,12 @@ try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentEl
   if (typeof s.fixVel === "number") S.fixVel = s.fixVel;
   if (typeof s.mono === "boolean") S.mono = s.mono;
   if (Array.isArray(s.slots) && s.slots.length === 2) S.slots = s.slots;
+  if (typeof s.adv === "boolean") S.adv = s.adv;
   $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
   $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
   $("monoChk").checked = S.mono;
   if (s.synth) synthChk.checked = true;
-  renderKeys(); renderSlots(); renderMods();
+  renderKeys(); fillRoles(); renderSlots(); renderMods();
 })();
 synth.initUI();
 document.addEventListener("pointerdown", () => { if (synthChk.checked) synth.enable(true); }, { once: true });
