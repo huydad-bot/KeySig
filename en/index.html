@@ -66,6 +66,7 @@ button:active{transform:translateY(1px)}
 .big{font-size:55px;font-weight:700;text-align:center;margin:6px 0 0;min-height:60px}
 .mods{text-align:center;color:var(--sharp);min-height:22px;font-weight:600}
 .slot{display:grid;grid-template-columns:auto auto auto 1fr;gap:8px;align-items:center;margin:6px 0}
+.adv label{font-size:15.5px;color:var(--muted)}
 .slot .cc{font-variant-numeric:tabular-nums;color:var(--accent);font-weight:600;min-width:52px}
 .act{font-size:14px;color:var(--muted)}
 .led{width:12px;height:12px;border-radius:50%;background:var(--line);display:inline-block;transition:background .15s}
@@ -134,6 +135,10 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <label for="outSel">Output (Logic Pro, etc.)</label>
       <select id="outSel"></select>
     </div>
+    <div class="row" id="selfRow" hidden>
+      <label><input type="checkbox" id="selfChk"> When the output is the instrument itself (Clarii): silence its original note (prevents doubled notes)</label>
+    </div>
+      <p class="help" id="selfNote" hidden>⚠ When both input and output are the Clarii PRO: switch the Clarii from <b>MIDI Mode to System (normal) mode</b>. In MIDI Mode, notes sent to the instrument do not sound.</p>
     <div class="status" id="midiStatus">Preparing MIDI…</div>
     <div class="row act" id="actRow"><span class="led" id="ledIn"></span><span>Instrument signal</span>
       <span class="led" id="ledNote"></span><span>Note</span>
@@ -198,6 +203,8 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <button data-learn="1">Learn</button>
       <select id="role1"></select>
     </div>
+    <div class="row adv"><label><input type="checkbox" id="advChk"> Advanced: also allow ♯ raise / ♭ lower roles for the ✱ keys</label></div>
+    <p class="help" id="advNote" hidden>Normally the ✱ keys are used only as ♮ (natural) and semitones come from the instrument's own semitone-key fingerings. The ♯/♭ roles are only for semitone trills without changing fingering (tap the ✱ key) or for playing notes like F𝄪 or E♯ exactly as written.</p>
     <div class="row">
       <label><input type="checkbox" id="fixChk" checked> Fixed velocity</label>
       <input type="number" id="fixVal" min="1" max="127" value="100">
@@ -237,12 +244,13 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
         <li><b>Logic Pro</b>: Settings → MIDI → Inputs: <b>uncheck the Clarii</b>, check only the IAC Driver.<br>
             <b>MainStage</b>: Layout mode → keyboard screen control → set its input to the <b>IAC Driver</b>.</li>
         <li>To play <b>without Logic</b>, check "Built-in sound on" and choose an instrument. The default SoundFont (about 30 MB) is downloaded once and then kept in the browser. Other .sf2 files can be added with [Load sf2]. Set the output to "None" if you don't want to send to Logic as well.</li>
-        <li>Choose the key signature and play. ✱1 = ♮ (cancel key signature), ✱2 = ♯ raise (set the ✱ keys to Artl. in the Clarii Controllers settings).</li>
+        <li>Choose the key signature and play. ✱1 and ✱2 = ♮ (cancel key signature) — e.g. ✱1 for the left hand (1·2·3), ✱2 for the right hand (4·5·6). Semitones come from the instrument's semitone-key fingerings (set the ✱ keys to Artl. in the Clarii Controllers settings). The ♯/♭ roles become available when "Advanced" is on.</li>
+        <li>To use the <b>Clarii PRO as both input and output</b> (playing with the Clarii's own sound), put the Clarii in <b>System (normal) mode, not MIDI Mode</b>. In MIDI Mode, notes sent to the instrument do not sound. Keep "silence its original note" on to avoid doubled notes.</li>
       </ol>
       <p class="help">Computer keyboard (while this page is in front): A S D F G H J = C D E F G A B, K L ; = C D E above,
         hold Q/W/E = ♭/♯/♮, ←/→ key signature, 0 key signature Off, ↑/↓ octave, Esc all notes off.
         When an instrument is connected, the keyboard only controls — it does not play notes.</p>
-      <p class="help">Limitation: when the result is a white-key note, as with E + semitone key (= F), it cannot be told apart from a normal fingering, so use the ✱2 key.</p>
+      <p class="help">Note: when the result is a white-key note, as with E + semitone key (= F), it cannot be told apart from a normal fingering, so the key signature is applied. In that case hold ✱ (♮) and play that note (F), or use the ♯ role under "Advanced".</p>
     </details>
   </div>
 </main>
@@ -271,7 +279,7 @@ function ksAcc(letter, ks){
 /* ───────── State ───────── */
 const S = {
   ks:0, transpose:0, octave:0, semi:"auto", fixVel:100, mono:true,
-  slots:[{cc:80, role:"nat"}, {cc:81, role:"sharp"}],
+  slots:[{cc:80, role:"nat"}, {cc:81, role:"nat"}], adv:false,
   inst:new Set(),            // roles held by instrument keys
   kmods:new Set(),           // computer keyboard q/w/e
   learning:-1,
@@ -283,7 +291,7 @@ const S = {
 const store = {
   get(){ try { return JSON.parse(localStorage.getItem("keysig") || "{}"); } catch(e){ return {}; } },
   set(){ try { localStorage.setItem("keysig", JSON.stringify({
-      ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots,
+      ks:S.ks, transpose:S.transpose, semi:S.semi, fixVel:S.fixVel, mono:S.mono, slots:S.slots, adv:S.adv,
       inName:inSel.selectedOptions[0]?.textContent, outName:outSel.selectedOptions[0]?.textContent,
       synth:synthChk.checked, sf:$("sfSel").value, preset:($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset), vol:+$("volRng").value })); } catch(e){} }
 };
@@ -317,8 +325,16 @@ function mapIn(n){
 
 /* ───────── MIDI output ───────── */
 let access = null, outPort = null, inPort = null;
+const sentAt = new Map();                    // 악기로 되돌려 보낸 음 (되울림 무시용)
+const noteKey = (b) => ((b[0] & 0xF0) === 0x90 && b[2] > 0 ? "on:" : "off:") + b[1];
+function portSend(bytes){
+  if (!outPort) return;
+  try { outPort.send(bytes); } catch(e){ return; }
+  const t = bytes[0] & 0xF0; if (t === 0x80 || t === 0x90) sentAt.set(noteKey(bytes), performance.now());
+}
+const selfMode = () => !!outPort && $("selfChk").checked;   // 출력 = 악기 자신
 function send(bytes){
-  if (outPort) { try { outPort.send(bytes); } catch(e){} }
+  portSend(bytes);
   synth.handle(bytes);
 }
 const noteOn  = (ch, n, v) => send([0x90 | ch, n, v]);
@@ -359,6 +375,9 @@ function blink(id){ const el = $(id); el.classList.add("on"); clearTimeout(ledT[
 function onMidi(ev){
   const [st, d1 = 0, d2 = 0] = ev.data, type = st & 0xF0, ch = st & 0x0F;
   if (st >= 0xF0) return;                                   // ignore clock etc.
+  if (selfMode() && (type === 0x80 || type === 0x90)) {   // 악기가 되울려 보낸 음은 무시
+    const t = sentAt.get(noteKey(ev.data)); if (t && performance.now() - t < 40) return;
+  }
   blink("ledIn");
   if (type === 0x90 && d2 > 0){ blink("ledNote"); $("lastIn").textContent = "Last note: " + CHROMA[d1 % 12] + (Math.floor(d1 / 12) - 1) + " (ch " + (ch + 1) + ")"; }
   if (type === 0x90 && d2 > 0){
@@ -366,7 +385,10 @@ function onMidi(ev){
     const key = ch + ":" + d1;
     if (S.active.has(key)) release(ch, S.active.get(key));
     S.active.set(key, m.out); S.vel.set(key, d2); addOut(ch, m.out);
-    noteOn(ch, m.out, S.fixVel || d2);
+    if (selfMode()) {                       // 악기 자신으로 출력: 원래 음을 끄고 바뀐 음만 보냄
+      if (m.out !== d1) { portSend([0x80 | ch, d1, 0]); portSend([0x90 | ch, m.out, S.fixVel || d2]); }
+      synth.handle([0x90 | ch, m.out, S.fixVel || d2]);
+    } else noteOn(ch, m.out, S.fixVel || d2);
     if (S.mono) releaseAll(key);
     show(m.label + "   (MIDI " + m.out + ")  ♪");
     return;
@@ -469,7 +491,23 @@ function kbDown(k, on){ document.querySelectorAll(`.kk[data-k="${CSS.escape(k)}"
 for (let k = -7; k <= 7; k++) ksSel.add(new Option(`${ksShort(k)}   (${MAJOR[k]} major / ${MINOR[k]} minor)`, k));
 for (let t = -12; t <= 12; t++) $("trSel").add(new Option((t > 0 ? "+" : "") + t + " semitone" + (Math.abs(t) === 1 ? "" : "s"), t));
 for (let o = -3; o <= 3; o++) $("octSel").add(new Option((o > 0 ? "+" : "") + o, o));
-for (const i of [0, 1]) for (const [n, v] of ROLES) $("role" + i).add(new Option(n, v));
+/* ✱키 역할 목록: ♯/♭은 '고급'을 직접 켰을 때만 보임 (처음에는 꺼진 상태) */
+function fillRoles(){
+  const adv = S.adv;
+  if (!adv) S.slots.forEach(s => { if (s.role === "sharp" || s.role === "flat") s.role = "nat"; });
+  $("advChk").checked = adv; $("advNote").hidden = !adv;
+  for (const i of [0, 1]) {
+    const sel = $("role" + i); sel.length = 0;
+    for (const [n, v] of ROLES) if (adv || v === "" || v === "nat") sel.add(new Option(n, v));
+    sel.value = S.slots[i].role;
+  }
+}
+fillRoles();
+$("advChk").onchange = e => {
+  S.adv = e.target.checked;
+  if (!S.adv) S.slots.forEach(s => { if (s.role === "sharp" || s.role === "flat") s.role = "nat"; });
+  S.inst.clear(); fillRoles(); renderMods(); store.set();
+};
 
 ksSel.onchange = () => setKs(+ksSel.value);
 $("ksDown").onclick = () => setKs(S.ks - 1);
@@ -508,18 +546,29 @@ function fillPorts(){
   pick(outSel, outs, keepOut, ["iac", "버스", "bus"]);
   connect();
 }
+let lastPair = null;
 function connect(){
   if (inPort) inPort.onmidimessage = null;
   inPort = access.inputs.get(inSel.value) || null;
   outPort = access.outputs.get(outSel.value) || null;
   if (inPort) inPort.onmidimessage = onMidi;
   S.active.clear(); S.outCount.clear(); S.inst.clear();
+  $("selfRow").hidden = !outPort;
+  const pair = (inPort ? inPort.name : "") + "|" + (outPort ? outPort.name : "");
+  if (pair !== lastPair) {                 // 포트가 바뀔 때만 자동 판단 (같은 기기면 켬)
+    lastPair = pair;
+    const same = inPort && outPort && (inPort.name === outPort.name ||
+      ["clarii", "robkoo"].some(w => inPort.name.toLowerCase().includes(w) && outPort.name.toLowerCase().includes(w)));
+    $("selfChk").checked = !!same;
+  }
   const st = $("midiStatus");
   const parts = [];
   parts.push(inPort ? "Input: " + inPort.name : "No input — play with computer keyboard");
   parts.push(outPort ? "Output: " + outPort.name : "No output port (built-in sound)");
   if (synthChk.checked) parts.push("Built-in sound on");
   if (synthChk.checked && outPort) parts.push("⚠ Sound also goes to Logic etc. Set output to 'None' to hear only the built-in sound");
+  $("selfNote").hidden = !selfMode();
+  if (selfMode()) parts.push("Sending back to the instrument — original-note silencing on");
   st.textContent = parts.join("   |   ");
   st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
   if (!outPort && !synthChk.checked && access.outputs.size === 0)
@@ -527,6 +576,7 @@ function connect(){
   store.set();
 }
 inSel.onchange = outSel.onchange = connect;
+$("selfChk").onchange = connect;
 
 async function initMidi(){
   const st = $("midiStatus");
@@ -808,6 +858,7 @@ const synth = (() => {
 const HELP = {
   "#inSel": "Choose the instrument (Clarii, etc.).\n\"Clarii PRO\" for USB, \"…Bluetooth\" for Bluetooth.\n\"None\" plays from the computer keyboard.",
   "#outSel": "Where notes with the key signature applied are sent.\nFor Logic / MainStage choose \"IAC Driver Bus 1\".\nChoose \"None\" when using only the built-in sound.",
+  "#selfChk": "Turn on when the output is the instrument (Clarii) itself.\nBefore sending the key-signature note, a Note Off is sent for the note the instrument played, preventing doubled sound.\n(Instrument in normal mode, not MIDI Mode; the original note may be heard very briefly at the start)",
   "#midiStatus": "Current input/output connection status.\nGreen means OK.",
   "#actRow": "The green light blinks when a signal arrives from the instrument.\nIf \"Note\" never blinks, check the input device and permission.",
   "#synthChk": "Play sound directly in the browser (no Logic needed).\nThe SoundFont (about 30 MB) is downloaded the first time.",
@@ -826,8 +877,8 @@ const HELP = {
   "#cc0": "The controller number sent by instrument key 1 (✱1).",
   "#cc1": "The controller number sent by instrument key 2 (✱2).",
   "[data-learn]": "Click, then press a key on the instrument to assign its controller number automatically.",
-  "#role0": "What the ✱1 key does while held.\n♮ = cancel key signature, ♯ = raise a semitone, ♭ = lower a semitone.\n(Clarii: MIDI Mode + set ✱ keys to Artl.)",
-  "#role1": "What the ✱2 key does while held.\nE.g. in A♭ major, E fingering + ✱2 (♯) → E♮.",
+  "#role0": "What the ✱1 key does while held.\n♮ = cancel key signature (♯ raise / ♭ lower appear when \"Advanced\" is on).\n(Clarii: MIDI Mode + set ✱ keys to Artl.)",
+  "#role1": "What the ✱2 key does while held.\n♮ = cancel key signature (♯/♭ appear when \"Advanced\" is on).",
   "#fixChk": "When on, notes are sent at a fixed velocity regardless of tonguing strength.\n(Recommended for wind instruments; turn off for MIDI keyboards)",
   "#fixVal": "Fixed velocity value (1–127).",
   "#monoChk": "Plays only one note at a time.\nPrevents hanging or doubled notes (recommended for wind instruments).",
@@ -876,11 +927,12 @@ try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentEl
   if (typeof s.fixVel === "number") S.fixVel = s.fixVel;
   if (typeof s.mono === "boolean") S.mono = s.mono;
   if (Array.isArray(s.slots) && s.slots.length === 2) S.slots = s.slots;
+  if (typeof s.adv === "boolean") S.adv = s.adv;
   $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
   $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
   $("monoChk").checked = S.mono;
   if (s.synth) synthChk.checked = true;
-  renderKeys(); renderSlots(); renderMods();
+  renderKeys(); fillRoles(); renderSlots(); renderMods();
 })();
 synth.initUI();
 document.addEventListener("pointerdown", () => { if (synthChk.checked) synth.enable(true); }, { once: true });
