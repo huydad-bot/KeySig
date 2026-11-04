@@ -100,7 +100,11 @@ button:active{transform:translateY(1px)}
 .sw.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
 .mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
 details summary{cursor:pointer;color:var(--accent);font-size:20px;font-weight:700}
-#instDetails[open] > summary{margin-bottom:10px}
+#instDetails[open] > summary,#connDetails[open] > summary,#sndDetails[open] > summary{margin-bottom:10px}
+.bul{display:inline-block;width:1.6em}
+.iosub{padding-left:1.6em;margin:2px 0 10px}
+#selfNote{padding-left:1.6em}
+.ht{margin:14px 0 4px;font-size:17.5px;color:var(--accent)}
 details p,details li{font-size:17.5px}
 .help{color:var(--muted);font-size:16.2px}
 .theme{float:right;margin-left:6px}
@@ -127,34 +131,36 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
     Based on Clarii Pro 20 (♮ handling is not perfect on Clarii mini, re.corder, etc.)</p>
 
   <div class="card" id="midiCard">
-    <h2>Connection</h2>
-    <div class="row">
-      <label for="inSel">Input (instrument)</label>
+    <details id="connDetails">
+      <summary>Connection (In/Out)</summary>
+    <div class="row io"><label for="inSel"><span class="bul">🎷</span>Input (instrument)</label>
       <select id="inSel"></select>
     </div>
-    <div class="row">
-      <label for="outSel">Output (Logic Pro, etc.)</label>
-      <select id="outSel"></select>
-    </div>
-    <div class="row" id="selfRow" hidden>
-      <label><input type="checkbox" id="selfChk"> When the output is the instrument itself (Clarii): silence its original note (prevents doubled notes)</label>
-    </div>
-      <p class="help" id="selfNote" hidden>⚠ When both input and output are the Clarii PRO: switch the Clarii from <b>MIDI Mode to System (normal) mode</b>. In MIDI Mode, notes sent to the instrument do not sound.</p>
-    <div class="status" id="midiStatus">Preparing MIDI…</div>
-    <div class="row act" id="actRow"><span class="led" id="ledIn"></span><span>Instrument signal</span>
+    <div class="row act iosub"><span class="status" id="inStatus">Preparing MIDI…</span>
+      <span class="led" id="ledIn"></span><span>Instrument signal</span>
       <span class="led" id="ledNote"></span><span>Note</span>
       <span class="status" id="lastIn">No signal received yet</span></div>
+    <div class="row io"><label for="outSel"><span class="bul">🔊</span>Output (Logic Pro, etc.)</label>
+      <select id="outSel"></select>
+    </div>
+    <div class="iosub"><span class="status" id="midiStatus"></span></div>
+    <div class="row iosub" id="selfRow" hidden>
+      <label><input type="checkbox" id="selfChk"> Same input and output (Clarii/Clarii): check this (prevents doubled notes)</label>
+    </div>
+    <p class="help" id="selfNote" hidden>⚠ When both input and output are the Clarii PRO: switch the Clarii from <b>MIDI Mode to System (normal) mode</b>. In MIDI Mode, notes sent to the instrument do not sound.</p>
+    </details>
   </div>
 
   <div class="card" id="soundCard">
-    <h2>Built-in Sound <span class="h2note">(computer sound, sf2, etc.)</span></h2>
+    <details id="sndDetails">
+      <summary>Output: Built-in Sound <span class="h2note">(computer sound, sf2, etc.)</span></summary>
     <div class="row">
       <label><input type="checkbox" id="synthChk"> Built-in sound on</label>
-      <label for="volRng">Volume</label>
+      <label for="volRng"><span class="bul">🔉</span>Volume</label>
       <input type="range" id="volRng" min="0" max="100" value="70" style="flex:0 1 160px">
     </div>
     <div class="row">
-      <label for="sfSel">Sound</label>
+      <label for="sfSel"><span class="bul">🎼</span>Sound</label>
       <select id="sfSel">
         <option value="default">Default SoundFont (GeneralUser GS · 128 instruments)</option>
         <option value="user" disabled>My sf2 (not loaded)</option>
@@ -164,11 +170,12 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <input type="file" id="sfFile" accept=".sf2,.sf3" hidden>
     </div>
     <div class="row">
-      <label for="presetSel">Instrument</label>
+      <label for="presetSel"><span class="bul">🎺</span>Instrument</label>
       <select id="presetSel"></select>
       <button id="testBtn" title="Play C-E-G with the browser sound only">♪ Preview</button>
     </div>
     <div class="status" id="sfStatus">Built-in sound off</div>
+    </details>
   </div>
 
   <div class="card ks-card">
@@ -241,19 +248,29 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   <div class="card">
     <details>
       <summary>How to use · first-time setup</summary>
+      <p class="help">The boxes above start folded. Click a title to open it; saved settings stay in effect even while a box is folded.</p>
+      <h4 class="ht">First time only (Mac)</h4>
       <ol>
-        <li><b>Mac, first time only:</b> Audio MIDI Setup → Window → Show MIDI Studio → double-click <b>IAC Driver</b> → check "Device is online".</li>
-        <li>Put the Clarii in <b>MIDI Mode</b>, connect it by USB (or Bluetooth), then open this page. Choose the Clarii as input and <b>IAC Driver Bus 1</b> as output.</li>
-        <li><b>Logic Pro</b>: Settings → MIDI → Inputs: <b>uncheck the Clarii</b>, check only the IAC Driver.<br>
-            <b>MainStage</b>: Layout mode → keyboard screen control → set its input to the <b>IAC Driver</b>.</li>
-        <li>To play <b>without Logic</b>, check "Built-in sound on" and choose an instrument. The default SoundFont (about 30 MB) is downloaded once and then kept in the browser. Other .sf2 files can be added with [Load sf2]. Set the output to "None" if you don't want to send to Logic as well.</li>
-        <li>Choose the key signature and play. ✱1 and ✱2 = ♮ (cancel key signature) — e.g. ✱1 for the left hand (1·2·3), ✱2 for the right hand (4·5·6). Semitones come from the instrument's semitone-key fingerings (set the ✱ keys to Artl. in the Clarii Controllers settings). The ♯/♭ roles become available when "Advanced" is on.</li>
-        <li>To use the <b>Clarii PRO as both input and output</b> (playing with the Clarii's own sound), put the Clarii in <b>System (normal) mode, not MIDI Mode</b>. In MIDI Mode, notes sent to the instrument do not sound. Keep "silence its original note" on to avoid doubled notes.</li>
+        <li>Audio MIDI Setup → Window → Show MIDI Studio → double-click <b>IAC Driver</b> → check "Device is online".</li>
+        <li>In Clarii Controllers, set the ✱ keys to <b>Artl.</b></li>
       </ol>
-      <p class="help">Computer keyboard (while this page is in front): A S D F G H J = C D E F G A B, K L ; = C D E above,
-        hold Q/W/E = ♭/♯/♮, ←/→ key signature, 0 key signature Off, ↑/↓ octave, Esc all notes off.
+      <h4 class="ht">Choose how to hear it — one of three</h4>
+      <ul>
+        <li><b>Through Logic Pro / MainStage</b>: Clarii in <b>MIDI Mode</b>. In <b>Connection (In/Out)</b>: 🎷 input = Clarii, 🔊 output = <b>IAC Driver Bus 1</b>.<br>
+          Logic: Settings → MIDI → Inputs: uncheck the Clarii, check only the IAC Driver / MainStage: Layout mode → keyboard screen control → input = IAC Driver.</li>
+        <li><b>Built-in sound (no Logic)</b>: output = "None". In <b>Output: Built-in Sound</b>, check "Built-in sound on" and choose 🎼 sound and 🎺 instrument. The default SoundFont (about 30 MB) is downloaded once; add other .sf2 files with [Load sf2].</li>
+        <li><b>The Clarii's own sound</b>: put the Clarii in <b>System (normal) mode</b>, choose the Clarii as both input and output, and check "Same input and output (Clarii/Clarii)" (prevents doubled notes). In MIDI Mode, notes sent to the instrument do not sound.</li>
+      </ul>
+      <h4 class="ht">Playing</h4>
+      <ul>
+        <li>Choose the <b>key signature</b> and play with C-major fingerings; the key signature's ♯/♭ are applied automatically.</li>
+        <li><b>✱1·✱2 = ♮ natural</b>: cancels the key signature while held. E.g. ✱1 for the left hand (1·2·3), ✱2 for the right hand (4·5·6).</li>
+        <li><b>Semitones (accidentals)</b> come from the instrument's semitone-key fingerings. If the result is a white-key note (e.g. E + semitone key = F), the key signature is applied, so hold ✱ (♮) and play that note (F).</li>
+        <li>Turn on "Advanced" in <b>Instrument Settings</b> to give the ✱ keys ♯ raise / ♭ lower roles (for semitone trills, or playing F𝄪, E♯ etc. as written).</li>
+      </ul>
+      <h4 class="ht">Computer keyboard (no instrument)</h4>
+      <p class="help">A S D F G H J = C D E F G A B, K L ; = C D E above · hold Q/W/E = ♭/♯/♮ · ←/→ key signature · 0 key signature Off · ↑/↓ octave · PgUp/PgDn transpose · Esc all notes off.
         When an instrument is connected, the keyboard only controls — it does not play notes.</p>
-      <p class="help">Note: when the result is a white-key note, as with E + semitone key (= F), it cannot be told apart from a normal fingering, so the key signature is applied. In that case hold ✱ (♮) and play that note (F), or use the ♯ role under "Advanced".</p>
     </details>
   </div>
 </main>
@@ -566,14 +583,15 @@ function connect(){
   }
   const st = $("midiStatus");
   const parts = [];
-  parts.push(inPort ? "Input: " + inPort.name : "No input — play with computer keyboard");
+  $("inStatus").textContent = inPort ? "Input: " + inPort.name : "No input — play with computer keyboard";
+  $("inStatus").className = "status " + (inPort ? "ok" : "warn");
   parts.push(outPort ? "Output: " + outPort.name : "No output port (built-in sound)");
   if (synthChk.checked) parts.push("Built-in sound on");
   if (synthChk.checked && outPort) parts.push("⚠ Sound also goes to Logic etc. Set output to 'None' to hear only the built-in sound");
   $("selfNote").hidden = !selfMode();
   if (selfMode()) parts.push("Sending back to the instrument — original-note silencing on");
   st.textContent = parts.join("   |   ");
-  st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
+  st.className = "status " + (outPort || synthChk.checked ? "ok" : "warn");
   if (!outPort && !synthChk.checked && access.outputs.size === 0)
     st.textContent += "  — please turn on the IAC Driver (see How to use)";
   store.set();
@@ -582,7 +600,7 @@ inSel.onchange = outSel.onchange = connect;
 $("selfChk").onchange = connect;
 
 async function initMidi(){
-  const st = $("midiStatus");
+  const st = $("inStatus");
   if (!navigator.requestMIDIAccess){
     st.textContent = "This browser does not support Web MIDI. Please open it in Chrome or Edge on Mac/Windows. (Safari, iPad and iPhone are not supported)";
     st.className = "status warn"; return;
@@ -862,7 +880,8 @@ const HELP = {
   "#inSel": "Choose the instrument (Clarii, etc.).\n\"Clarii PRO\" for USB, \"…Bluetooth\" for Bluetooth.\n\"None\" plays from the computer keyboard.",
   "#outSel": "Where notes with the key signature applied are sent.\nFor Logic / MainStage choose \"IAC Driver Bus 1\".\nChoose \"None\" when using only the built-in sound.",
   "#selfChk": "Turn on when the output is the instrument (Clarii) itself.\nBefore sending the key-signature note, a Note Off is sent for the note the instrument played, preventing doubled sound.\n(Instrument in normal mode, not MIDI Mode; the original note may be heard very briefly at the start)",
-  "#midiStatus": "Current input/output connection status.\nGreen means OK.",
+  "#midiStatus": "Current output connection status.\nGreen means OK.",
+  "#inStatus": "Current input (instrument) connection status.\nGreen means OK.",
   "#actRow": "The green light blinks when a signal arrives from the instrument.\nIf \"Note\" never blinks, check the input device and permission.",
   "#synthChk": "Play sound directly in the browser (no Logic needed).\nThe SoundFont (about 30 MB) is downloaded the first time.",
   "#volRng": "Overall volume of the built-in sound.\nDynamics while playing follow your breath.",
