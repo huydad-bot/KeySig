@@ -100,7 +100,11 @@ button:active{transform:translateY(1px)}
 .sw.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
 .mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
 details summary{cursor:pointer;color:var(--accent);font-size:20px;font-weight:700}
-#instDetails[open] > summary{margin-bottom:10px}
+#instDetails[open] > summary,#connDetails[open] > summary,#sndDetails[open] > summary{margin-bottom:10px}
+.bul{display:inline-block;width:1.6em}
+.iosub{padding-left:1.6em;margin:2px 0 10px}
+#selfNote{padding-left:1.6em}
+.ht{margin:14px 0 4px;font-size:17.5px;color:var(--accent)}
 details p,details li{font-size:17.5px}
 .help{color:var(--muted);font-size:16.2px}
 .theme{float:right;margin-left:6px}
@@ -127,34 +131,36 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
     Clarii Pro 20 기준 (Clarii mini, re.corder 등은 ♮ 처리 완벽하지 않음)</p>
 
   <div class="card" id="midiCard">
-    <h2>연결</h2>
-    <div class="row">
-      <label for="inSel">입력 (악기)</label>
+    <details id="connDetails">
+      <summary>연결 (입/출력)</summary>
+    <div class="row io"><label for="inSel"><span class="bul">🎷</span>입력 (악기)</label>
       <select id="inSel"></select>
     </div>
-    <div class="row">
-      <label for="outSel">출력 (Logic Pro 등 선택)</label>
-      <select id="outSel"></select>
-    </div>
-    <div class="row" id="selfRow" hidden>
-      <label><input type="checkbox" id="selfChk"> 출력이 악기 자신(Clarii)일 때: 악기의 원래 음 끄기 (2중 소리 방지)</label>
-    </div>
-      <p class="help" id="selfNote" hidden>⚠ 입력·출력이 모두 Clarii PRO인 경우: Clarii를 <b>MIDI Mode → System(일반) 모드</b>로 바꿔야 합니다. MIDI Mode에서는 받은 음이 기기에서 소리 나지 않습니다.</p>
-    <div class="status" id="midiStatus">MIDI 준비 중…</div>
-    <div class="row act" id="actRow"><span class="led" id="ledIn"></span><span>악기 신호 수신</span>
+    <div class="row act iosub"><span class="status" id="inStatus">MIDI 준비 중…</span>
+      <span class="led" id="ledIn"></span><span>악기 신호 수신</span>
       <span class="led" id="ledNote"></span><span>음 수신</span>
       <span class="status" id="lastIn">아직 받은 신호 없음</span></div>
+    <div class="row io"><label for="outSel"><span class="bul">🔊</span>출력 (Logic Pro 등 선택)</label>
+      <select id="outSel"></select>
+    </div>
+    <div class="iosub"><span class="status" id="midiStatus"></span></div>
+    <div class="row iosub" id="selfRow" hidden>
+      <label><input type="checkbox" id="selfChk"> 입/출력 같은 경우(Clarii/Clarii): 체크 요함 (2중 소리 방지)</label>
+    </div>
+    <p class="help" id="selfNote" hidden>⚠ 입력·출력이 모두 Clarii PRO인 경우: Clarii를 <b>MIDI Mode → System(일반) 모드</b>로 바꿔야 합니다. MIDI Mode에서는 받은 음이 기기에서 소리 나지 않습니다.</p>
+    </details>
   </div>
 
   <div class="card" id="soundCard">
-    <h2>컴퓨터 내장음 이용 <span class="h2note">(컴퓨터 내장음, sf2 등)</span></h2>
+    <details id="sndDetails">
+      <summary>출력 컴퓨터 내장음 <span class="h2note">(컴퓨터 내장음, sf2 등)</span></summary>
     <div class="row">
       <label><input type="checkbox" id="synthChk"> 내장 소리 켜기</label>
-      <label for="volRng">음량</label>
+      <label for="volRng"><span class="bul">🔉</span>음량</label>
       <input type="range" id="volRng" min="0" max="100" value="70" style="flex:0 1 160px">
     </div>
     <div class="row">
-      <label for="sfSel">사운드</label>
+      <label for="sfSel"><span class="bul">🎼</span>사운드</label>
       <select id="sfSel">
         <option value="default">기본 사운드폰트 (GeneralUser GS · 128 악기)</option>
         <option value="user" disabled>내 sf2 (불러오지 않음)</option>
@@ -164,11 +170,12 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <input type="file" id="sfFile" accept=".sf2,.sf3" hidden>
     </div>
     <div class="row">
-      <label for="presetSel">악기</label>
+      <label for="presetSel"><span class="bul">🎺</span>악기</label>
       <select id="presetSel"></select>
       <button id="testBtn" title="브라우저 소리만으로 도-미-솔 재생">♪ 미리듣기</button>
     </div>
     <div class="status" id="sfStatus">내장 소리 꺼짐</div>
+    </details>
   </div>
 
   <div class="card ks-card">
@@ -241,19 +248,29 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   <div class="card">
     <details>
       <summary>사용법 · 처음 설정</summary>
+      <p class="help">위의 박스들은 처음에 접혀 있습니다. 제목을 누르면 펼쳐지고, 접혀 있어도 저장한 설정은 그대로 적용됩니다.</p>
+      <h4 class="ht">처음 1회 (Mac)</h4>
       <ol>
-        <li><b>Mac 처음 1회:</b> 오디오 MIDI 설정 → 윈도우 → MIDI 스튜디오 보기 → <b>IAC 드라이버</b> 더블클릭 → "기기가 온라인 상태임" 체크.</li>
-        <li>Clarii를 <b>MIDI Mode</b>로 두고 USB(또는 블루투스)로 연결한 뒤 이 페이지를 엽니다. 입력에 Clarii, 출력에 <b>IAC 드라이버 버스 1</b>을 고릅니다.</li>
-        <li><b>Logic Pro</b>: 설정 → MIDI → 입력에서 <b>Clarii 항목 체크 해제</b>, IAC 드라이버만 체크.<br>
-            <b>MainStage</b>: 레이아웃 모드 → 건반 그림 → 입력을 <b>IAC 드라이버</b>로.</li>
-        <li><b>Logic 없이</b> 연주하려면 "내장 소리 켜기"를 체크하고 악기를 고릅니다. 처음 한 번 기본 사운드폰트(약 30MB)를 내려받고, 이후에는 브라우저에 저장됩니다. 다른 .sf2 파일은 [sf2 불러오기]로 넣을 수 있습니다. 이때 Logic으로 보내지 않으려면 출력을 "없음"으로 둡니다.</li>
-        <li>조표를 고르고 연주합니다. ✱1·✱2 = ♮(조표 해제) — 예: ✱1은 왼손(1·2·3), ✱2는 오른손(4·5·6) 손가락용. 반음은 악기의 반음 키 운지로 냅니다 (Clarii Controllers에서 ✱키를 Artl.로 설정). ♯/♭ 역할은 '고급'을 켜면 고를 수 있습니다.</li>
-        <li><b>입력·출력 모두 Clarii PRO</b>로 쓰려면(Clarii 본체 소리로 연주) Clarii를 <b>MIDI Mode가 아닌 System(일반) 모드</b>로 둡니다. MIDI Mode에서는 받은 음이 기기에서 소리 나지 않습니다. "원래 음 끄기"가 켜져 있어야 2중 소리가 나지 않습니다.</li>
+        <li>오디오 MIDI 설정 → 윈도우 → MIDI 스튜디오 보기 → <b>IAC 드라이버</b> 더블클릭 → "기기가 온라인 상태임" 체크.</li>
+        <li>Clarii Controllers에서 ✱키를 <b>Artl.</b>로 설정합니다.</li>
       </ol>
-      <p class="help">컴퓨터 키보드(이 페이지가 앞에 있을 때): A S D F G H J = C D E F G A B, K L ; = 위 C D E,
-        Q/W/E 누른 채 = ♭/♯/♮, ←/→ 조표, 0 조표 Off, ↑/↓ 옥타브, Esc 모든 음 끄기.
-        악기가 연결되어 있으면 키보드로는 음이 나지 않고 조작만 됩니다.</p>
-      <p class="help">참고: E+반음 키(=F)처럼 결과가 흰건반 음이면 일반 운지와 구분되지 않아 조표가 적용됩니다. 이때는 ✱(♮)를 누른 채 그 음(F)을 불거나, '고급'의 ♯ 역할을 씁니다.</p>
+      <h4 class="ht">연주 방법 — 셋 중 하나를 고릅니다</h4>
+      <ul>
+        <li><b>Logic Pro·MainStage 소리로</b>: Clarii는 <b>MIDI Mode</b>. <b>연결 (입/출력)</b>에서 🎷 입력 = Clarii, 🔊 출력 = <b>IAC 드라이버 버스 1</b>.<br>
+          Logic: 설정 → MIDI → 입력에서 Clarii 체크 해제, IAC 드라이버만 체크 / MainStage: 레이아웃 모드 → 건반 그림 → 입력을 IAC 드라이버로.</li>
+        <li><b>컴퓨터 내장음으로 (Logic 없이)</b>: 출력은 "없음". <b>출력 컴퓨터 내장음</b>에서 "내장 소리 켜기"를 체크하고 🎼 사운드·🎺 악기를 고릅니다. 기본 사운드폰트(약 30MB)는 처음 한 번만 내려받고, 다른 .sf2는 [sf2 불러오기]로 넣습니다.</li>
+        <li><b>Clarii 본체 소리로</b>: Clarii를 <b>System(일반) 모드</b>로 두고 입력·출력 모두 Clarii를 고른 뒤 "입/출력 같은 경우(Clarii/Clarii)"를 체크합니다 (2중 소리 방지). MIDI Mode에서는 받은 음이 기기에서 나지 않습니다.</li>
+      </ul>
+      <h4 class="ht">연주</h4>
+      <ul>
+        <li><b>조표</b>를 고르고 C장조(다장조) 운지로 연주하면 조표의 ♯/♭이 자동으로 붙습니다.</li>
+        <li><b>✱1·✱2 = ♮ 제자리표</b>: 누르는 동안 조표를 뗍니다. 예: ✱1은 왼손(1·2·3), ✱2는 오른손(4·5·6) 손가락용.</li>
+        <li><b>반음(임시표)</b>은 악기의 반음 키 운지로 냅니다. 운지 결과가 흰건반 음이면(예: E+반음 키 = F) 조표가 적용되므로, ✱(♮)를 누른 채 그 음(F)을 붑니다.</li>
+        <li><b>악기 설정</b>의 '고급'을 켜면 ✱키에 ♯ 올림 / ♭ 내림 역할도 줄 수 있습니다 (반음 트릴, F𝄪·E♯ 등을 악보대로 연주할 때).</li>
+      </ul>
+      <h4 class="ht">컴퓨터 키보드 (악기가 없을 때)</h4>
+      <p class="help">A S D F G H J = C D E F G A B, K L ; = 위 C D E · Q/W/E 누른 채 = ♭/♯/♮ · ←/→ 조표 · 0 조표 Off · ↑/↓ 옥타브 · PgUp/PgDn 이조 · Esc 모든 음 끄기.
+        악기가 연결되어 있으면 키보드는 조작만 하고 음은 내지 않습니다.</p>
     </details>
   </div>
 </main>
@@ -566,14 +583,15 @@ function connect(){
   }
   const st = $("midiStatus");
   const parts = [];
-  parts.push(inPort ? "입력: " + inPort.name : "입력 없음 — 컴퓨터 키보드로 연주");
+  $("inStatus").textContent = inPort ? "입력: " + inPort.name : "입력 없음 — 컴퓨터 키보드로 연주";
+  $("inStatus").className = "status " + (inPort ? "ok" : "warn");
   parts.push(outPort ? "출력: " + outPort.name : "출력 포트 없음 (컴퓨터 내장음)");
   if (synthChk.checked) parts.push("내장 소리 켜짐");
   if (synthChk.checked && outPort) parts.push("⚠ Logic 등으로도 소리가 나갑니다. 내장 소리만 들으려면 출력을 '없음'으로");
   $("selfNote").hidden = !selfMode();
   if (selfMode()) parts.push("악기로 되돌려 보냄 — 원래 음 끄기 켜짐");
   st.textContent = parts.join("   |   ");
-  st.className = "status " + (inPort && (outPort || synthChk.checked) ? "ok" : "warn");
+  st.className = "status " + (outPort || synthChk.checked ? "ok" : "warn");
   if (!outPort && !synthChk.checked && access.outputs.size === 0)
     st.textContent += "  — IAC 드라이버를 켜 주십시오 (사용법 참고)";
   store.set();
@@ -582,7 +600,7 @@ inSel.onchange = outSel.onchange = connect;
 $("selfChk").onchange = connect;
 
 async function initMidi(){
-  const st = $("midiStatus");
+  const st = $("inStatus");
   if (!navigator.requestMIDIAccess){
     st.textContent = "이 브라우저는 Web MIDI를 지원하지 않습니다. Mac/Windows의 Chrome 또는 Edge로 여십시오. (Safari·iPad·iPhone 불가)";
     st.className = "status warn"; return;
@@ -878,7 +896,8 @@ const HELP = {
   "#inSel": "악기(Clarii 등)를 고릅니다.\nUSB면 \"Clarii PRO\", 블루투스면 \"…Bluetooth\".\n\"없음\"이면 컴퓨터 키보드로 연주합니다.",
   "#outSel": "조표가 적용된 음을 보낼 곳입니다.\nLogic·MainStage로 보내려면 \"IAC 드라이버 버스 1\".\n내장 소리만 쓸 때는 \"없음\".",
   "#selfChk": "출력을 악기(Clarii) 자신으로 할 때 켭니다.\n조표로 바뀐 음을 보내기 전에 악기가 낸 원래 음에 Note Off를 보내 2중 소리를 막습니다.\n(악기는 MIDI Mode가 아닌 일반 모드, 첫 순간 원래 음이 아주 짧게 들릴 수 있음)",
-  "#midiStatus": "현재 입력·출력 연결 상태입니다.\n초록색이면 정상입니다.",
+  "#midiStatus": "현재 출력 연결 상태입니다.\n초록색이면 정상입니다.",
+  "#inStatus": "현재 입력(악기) 연결 상태입니다.\n초록색이면 정상입니다.",
   "#actRow": "악기에서 신호가 오면 초록 불이 깜빡입니다.\n\"음 수신\"이 안 깜빡이면 입력 기기·권한(허용)을 확인하십시오.",
   "#synthChk": "브라우저에서 직접 소리를 냅니다 (Logic 불필요).\n처음 한 번 사운드폰트(약 30MB)를 내려받습니다.",
   "#volRng": "내장 소리의 전체 음량입니다.\n연주 중 크기는 숨 세기로 조절됩니다.",
