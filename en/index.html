@@ -154,8 +154,9 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   <div class="card" id="soundCard">
     <details id="sndDetails">
       <summary>Output: Built-in Sound <span class="h2note">(computer sound, sf2, etc.)</span></summary>
+    <p class="help" style="margin:0 0 8px">🔊 Turns on automatically when the output is "None", and off when you choose an output port (Logic, Clarii, etc.).</p>
     <div class="row">
-      <label><input type="checkbox" id="synthChk"> Built-in sound on</label>
+      <input type="checkbox" id="synthChk" hidden>
       <label for="volRng"><span class="bul">🔉</span>Volume</label>
       <input type="range" id="volRng" min="0" max="100" value="70" style="flex:0 1 160px">
     </div>
@@ -258,7 +259,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <ul>
         <li><b>Through Logic Pro / MainStage</b>: Clarii in <b>MIDI Mode</b>. In <b>Connection (In/Out)</b>: 🎷 input = Clarii, 🔊 output = <b>IAC Driver Bus 1</b>.<br>
           Logic: Settings → MIDI → Inputs: uncheck the Clarii, check only the IAC Driver / MainStage: Layout mode → keyboard screen control → input = IAC Driver.</li>
-        <li><b>Built-in sound (no Logic)</b>: output = "None". In <b>Output: Built-in Sound</b>, check "Built-in sound on" and choose 🎼 sound and 🎺 instrument. The default SoundFont (about 30 MB) is downloaded once; add other .sf2 files with [Load sf2].</li>
+        <li><b>Built-in sound (no Logic)</b>: output = "None". In <b>Output: Built-in Sound</b>, choose 🎼 sound and 🎺 instrument (the built-in sound turns on automatically when the output is "None"). The default SoundFont (about 30 MB) is downloaded once; add other .sf2 files with [Load sf2].</li>
         <li><b>The Clarii's own sound</b>: put the Clarii in <b>System (normal) mode</b>, choose the Clarii as both input and output, and check "Same input and output (Clarii/Clarii)" (prevents doubled notes). In MIDI Mode, notes sent to the instrument do not sound.</li>
       </ul>
       <h4 class="ht">Playing</h4>
@@ -574,6 +575,8 @@ function connect(){
   if (inPort) inPort.onmidimessage = onMidi;
   S.active.clear(); S.outCount.clear(); S.inst.clear();
   $("selfRow").hidden = !outPort;
+  const wantSynth = !outPort;               // 출력 포트가 없으면 내장 소리, 있으면 끔
+  if (synthChk.checked !== wantSynth) { synthChk.checked = wantSynth; synth.enable(wantSynth); }
   const pair = (inPort ? inPort.name : "") + "|" + (outPort ? outPort.name : "");
   if (pair !== lastPair) {                 // 포트가 바뀔 때만 자동 판단 (같은 기기면 켬)
     lastPair = pair;
@@ -707,7 +710,8 @@ const synth = (() => {
   const sounding = [];                       // notes sounding on each channel
   const simple = { voices: new Map(), filter: null, master: null, breath: false };
   const $st = () => $("sfStatus");
-  const status = (t, cls) => { $st().textContent = t; $st().className = "status" + (cls ? " " + cls : ""); };
+  const status = (t, cls) => { if (!synthChk.checked) { t = "Built-in sound off (an output port is in use)"; cls = ""; }   // 꺼진 뒤 늦게 끝난 불러오기 메시지가 덮어쓰지 않게
+    $st().textContent = t; $st().className = "status" + (cls ? " " + cls : ""); };
   const mode = () => $("sfSel").value;
 
   function ensureCtx(){
@@ -786,7 +790,7 @@ const synth = (() => {
     ps.innerHTML = "<option>⏳ Loading instrument list… (see status line below)</option>";
     try { fillPresets(await listPresets(mode()), keep); }
     catch(e){
-      ps.innerHTML = "<option>⚠ Could not load the instrument list — turn the built-in sound off and on to retry</option>";
+      ps.innerHTML = "<option>⚠ Could not load the instrument list — reload the page to retry</option>";
       status(mode() === "user" ? "Please load your sf2 again."
         : !fsReady ? "Could not load the sound engine. Check that Chrome is up to date and you are online."
         : "Could not download the default SoundFont. Check your connection, or load an sf2 yourself.", "warn");
@@ -861,11 +865,13 @@ const synth = (() => {
       $("presetSel").onchange = () => { applyPreset(); store.set(); };
       $("sfBtn").onclick = () => $("sfFile").click();
       $("testBtn").onclick = async () => {
-        if (!synthChk.checked) { synthChk.checked = true; synth.enable(true); store.set(); connect(); }
+        const temp = !synthChk.checked;          // 출력 포트가 있을 때: 미리듣기 동안만 잠깐 켬
+        if (temp) synth.enable(true);
         await (fsReady || Promise.resolve()).catch(() => {});
         const play = (n, t) => setTimeout(() => { this.handle([0xB0, 7, 110]); this.handle([0x90, n, 100]);
           setTimeout(() => this.handle([0x80, n, 0]), 380); }, t);
         play(60, 0); play(64, 420); play(67, 840);
+        if (temp) setTimeout(() => { if (!synthChk.checked) synth.enable(false); }, 1500);
       };
       $("sfFile").onchange = e => { const f = e.target.files[0]; if (f) loadUserFile(f); e.target.value = ""; };
       if (synthChk.checked) { status("Tap (click) the page once to turn on the built-in sound");
@@ -883,7 +889,6 @@ const HELP = {
   "#midiStatus": "Current output connection status.\nGreen means OK.",
   "#inStatus": "Current input (instrument) connection status.\nGreen means OK.",
   "#actRow": "The green light blinks when a signal arrives from the instrument.\nIf \"Note\" never blinks, check the input device and permission.",
-  "#synthChk": "Play sound directly in the browser (no Logic needed).\nThe SoundFont (about 30 MB) is downloaded the first time.",
   "#volRng": "Overall volume of the built-in sound.\nDynamics while playing follow your breath.",
   "#sfSel": "Choose the sound source.\nDefault (GeneralUser GS, 128 instruments) / your own sf2 / simple synth.",
   "#sfBtn": "Load a downloaded .sf2 file (.sf3 and zip not supported).\nOnce loaded it is kept for next time.",
@@ -953,7 +958,7 @@ try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentEl
   $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
   $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
   $("monoChk").checked = S.mono;
-  if (s.synth) synthChk.checked = true;
+  synthChk.checked = true;          // 내장 소리: 출력이 없으면 켜짐 (connect에서 자동 판단)
   renderKeys(); fillRoles(); renderSlots(); renderMods();
 })();
 synth.initUI();
