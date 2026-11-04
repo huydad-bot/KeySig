@@ -154,8 +154,9 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   <div class="card" id="soundCard">
     <details id="sndDetails">
       <summary>출력 컴퓨터 내장음 <span class="h2note">(컴퓨터 내장음, sf2 등)</span></summary>
+    <p class="help" style="margin:0 0 8px">🔊 출력이 "없음"이면 자동으로 켜지고, 출력 포트(Logic·Clarii 등)를 고르면 자동으로 꺼집니다.</p>
     <div class="row">
-      <label><input type="checkbox" id="synthChk"> 내장 소리 켜기</label>
+      <input type="checkbox" id="synthChk" hidden>
       <label for="volRng"><span class="bul">🔉</span>음량</label>
       <input type="range" id="volRng" min="0" max="100" value="70" style="flex:0 1 160px">
     </div>
@@ -258,7 +259,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <ul>
         <li><b>Logic Pro·MainStage 소리로</b>: Clarii는 <b>MIDI Mode</b>. <b>연결 (입/출력)</b>에서 🎷 입력 = Clarii, 🔊 출력 = <b>IAC 드라이버 버스 1</b>.<br>
           Logic: 설정 → MIDI → 입력에서 Clarii 체크 해제, IAC 드라이버만 체크 / MainStage: 레이아웃 모드 → 건반 그림 → 입력을 IAC 드라이버로.</li>
-        <li><b>컴퓨터 내장음으로 (Logic 없이)</b>: 출력은 "없음". <b>출력 컴퓨터 내장음</b>에서 "내장 소리 켜기"를 체크하고 🎼 사운드·🎺 악기를 고릅니다. 기본 사운드폰트(약 30MB)는 처음 한 번만 내려받고, 다른 .sf2는 [sf2 불러오기]로 넣습니다.</li>
+        <li><b>컴퓨터 내장음으로 (Logic 없이)</b>: 출력은 "없음". <b>출력 컴퓨터 내장음</b>에서 🎼 사운드·🎺 악기를 고릅니다 (출력이 "없음"이면 내장 소리가 자동으로 켜집니다). 기본 사운드폰트(약 30MB)는 처음 한 번만 내려받고, 다른 .sf2는 [sf2 불러오기]로 넣습니다.</li>
         <li><b>Clarii 본체 소리로</b>: Clarii를 <b>System(일반) 모드</b>로 두고 입력·출력 모두 Clarii를 고른 뒤 "입/출력 같은 경우(Clarii/Clarii)"를 체크합니다 (2중 소리 방지). MIDI Mode에서는 받은 음이 기기에서 나지 않습니다.</li>
       </ul>
       <h4 class="ht">연주</h4>
@@ -574,6 +575,8 @@ function connect(){
   if (inPort) inPort.onmidimessage = onMidi;
   S.active.clear(); S.outCount.clear(); S.inst.clear();
   $("selfRow").hidden = !outPort;
+  const wantSynth = !outPort;               // 출력 포트가 없으면 내장 소리, 있으면 끔
+  if (synthChk.checked !== wantSynth) { synthChk.checked = wantSynth; synth.enable(wantSynth); }
   const pair = (inPort ? inPort.name : "") + "|" + (outPort ? outPort.name : "");
   if (pair !== lastPair) {                 // 포트가 바뀔 때만 자동 판단 (같은 기기면 켬)
     lastPair = pair;
@@ -723,7 +726,8 @@ const synth = (() => {
   const sounding = [];                       // 채널별로 울리고 있는 음
   const simple = { voices: new Map(), filter: null, master: null, breath: false };
   const $st = () => $("sfStatus");
-  const status = (t, cls) => { $st().textContent = t; $st().className = "status" + (cls ? " " + cls : ""); };
+  const status = (t, cls) => { if (!synthChk.checked) { t = "내장 소리 꺼짐 (출력 포트 사용 중)"; cls = ""; }   // 꺼진 뒤 늦게 끝난 불러오기 메시지가 덮어쓰지 않게
+    $st().textContent = t; $st().className = "status" + (cls ? " " + cls : ""); };
   const mode = () => $("sfSel").value;
 
   function ensureCtx(){
@@ -802,7 +806,7 @@ const synth = (() => {
     ps.innerHTML = "<option>⏳ 악기 목록 불러오는 중… (아래 상태 줄 확인)</option>";
     try { fillPresets(await listPresets(mode()), keep); }
     catch(e){
-      ps.innerHTML = "<option>⚠ 악기 목록을 불러오지 못했습니다 — 내장 소리를 껐다 켜서 다시 시도</option>";
+      ps.innerHTML = "<option>⚠ 악기 목록을 불러오지 못했습니다 — 페이지를 새로고침해 다시 시도</option>";
       status(mode() === "user" ? "내 sf2를 다시 불러와 주십시오."
         : !fsReady ? "소리 엔진을 불러오지 못했습니다. 크롬 최신 버전인지, 인터넷 연결을 확인하십시오."
         : "기본 사운드폰트를 내려받지 못했습니다. 인터넷 연결을 확인하거나 sf2를 직접 불러오십시오.", "warn");
@@ -877,11 +881,13 @@ const synth = (() => {
       $("presetSel").onchange = () => { applyPreset(); store.set(); };
       $("sfBtn").onclick = () => $("sfFile").click();
       $("testBtn").onclick = async () => {
-        if (!synthChk.checked) { synthChk.checked = true; synth.enable(true); store.set(); connect(); }
+        const temp = !synthChk.checked;          // 출력 포트가 있을 때: 미리듣기 동안만 잠깐 켬
+        if (temp) synth.enable(true);
         await (fsReady || Promise.resolve()).catch(() => {});
         const play = (n, t) => setTimeout(() => { this.handle([0xB0, 7, 110]); this.handle([0x90, n, 100]);
           setTimeout(() => this.handle([0x80, n, 0]), 380); }, t);
         play(60, 0); play(64, 420); play(67, 840);
+        if (temp) setTimeout(() => { if (!synthChk.checked) synth.enable(false); }, 1500);
       };
       $("sfFile").onchange = e => { const f = e.target.files[0]; if (f) loadUserFile(f); e.target.value = ""; };
       if (synthChk.checked) { status("화면을 한 번 터치(클릭)하면 내장 소리가 켜집니다");
@@ -899,7 +905,7 @@ const HELP = {
   "#midiStatus": "현재 출력 연결 상태입니다.\n초록색이면 정상입니다.",
   "#inStatus": "현재 입력(악기) 연결 상태입니다.\n초록색이면 정상입니다.",
   "#actRow": "악기에서 신호가 오면 초록 불이 깜빡입니다.\n\"음 수신\"이 안 깜빡이면 입력 기기·권한(허용)을 확인하십시오.",
-  "#synthChk": "브라우저에서 직접 소리를 냅니다 (Logic 불필요).\n처음 한 번 사운드폰트(약 30MB)를 내려받습니다.",
+  
   "#volRng": "내장 소리의 전체 음량입니다.\n연주 중 크기는 숨 세기로 조절됩니다.",
   "#sfSel": "소리 종류를 고릅니다.\n기본(GeneralUser GS 128 악기) / 내가 불러온 sf2 / 간단한 합성음.",
   "#sfBtn": "내려받은 .sf2 파일을 불러옵니다 (.sf3·zip 불가).\n한 번 불러오면 저장되어 다음에도 쓸 수 있습니다.",
@@ -969,7 +975,7 @@ try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentEl
   $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
   $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
   $("monoChk").checked = S.mono;
-  if (s.synth) synthChk.checked = true;
+  synthChk.checked = true;          // 내장 소리: 출력이 없으면 켜짐 (connect에서 자동 판단)
   renderKeys(); fillRoles(); renderSlots(); renderMods();
 })();
 synth.initUI();
