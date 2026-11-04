@@ -100,6 +100,7 @@ button:active{transform:translateY(1px)}
 .sw.ctl{background:color-mix(in srgb, var(--ok) 14%, var(--card));border-color:var(--ok)}
 .mon{font-family:ui-monospace,Menlo,monospace;font-size:16.2px;color:var(--muted)}
 details summary{cursor:pointer;color:var(--accent);font-size:20px;font-weight:700}
+#instDetails[open] > summary{margin-bottom:10px}
 details p,details li{font-size:17.5px}
 .help{color:var(--muted);font-size:16.2px}
 .theme{float:right;margin-left:6px}
@@ -183,7 +184,8 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
   </div>
 
   <div class="card">
-    <h2>Instrument Settings <span class="h2note">(based on Clarii Pro 20)</span></h2>
+    <details id="instDetails">
+      <summary>Instrument Settings <span class="h2note">(based on Clarii Pro 20)</span></summary>
     <div class="row">
       <label for="semiSel">Semitone keys</label>
       <select id="semiSel">
@@ -217,6 +219,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <select id="octSel" style="flex:0 1 110px"></select>
     </div>
     <div class="mon" id="mon">Received (excluding breath): none</div>
+    </details>
   </div>
 
   <div class="card">
