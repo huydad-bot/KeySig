@@ -141,7 +141,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <span class="led" id="ledIn"></span><span>악기 신호 수신</span>
       <span class="led" id="ledNote"></span><span>음 수신</span>
       <span class="status" id="lastIn">아직 받은 신호 없음</span></div>
-    <div class="row io"><label for="outSel"><span class="bul">🔊</span>출력 (Logic Pro 등 선택)</label>
+    <div class="row io"><label for="outSel"><span class="bul">🔊</span>출력 (DAW/내장음/외부악기)</label>
       <select id="outSel"></select>
     </div>
     <div class="iosub"><span class="status" id="midiStatus"></span></div>
@@ -198,7 +198,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
 
   <div class="card">
     <details id="instDetails">
-      <summary>악기 설정 <span class="h2note">(Clarii Pro 20 기준)</span></summary>
+      <summary>악기 설정 <span class="h2note">(Clarii Pro/CASIO CT-S300)</span></summary>
     <div class="row">
       <label for="semiSel">반음 키 해석</label>
       <select id="semiSel">
@@ -255,30 +255,50 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
     <details>
       <summary>사용법 · 처음 설정</summary>
       <p class="help">위의 박스들은 처음에 접혀 있습니다. 제목을 누르면 펼쳐지고, 접혀 있어도 저장한 설정은 그대로 적용됩니다.</p>
-      <h4 class="ht">처음 1회 (Mac)</h4>
-      <ol>
-        <li>오디오 MIDI 설정 → 윈도우 → MIDI 스튜디오 보기 → <b>IAC 드라이버</b> 더블클릭 → "기기가 온라인 상태임" 체크.</li>
-        <li>Clarii Controllers에서 ✱키를 <b>Artl.</b>로 설정합니다.</li>
-      </ol>
-      <h4 class="ht">연주 방법 — 셋 중 하나를 고릅니다</h4>
+
+      <h4 class="ht">1. 쓸 수 있는 기기·브라우저</h4>
       <ul>
-        <li><b>Logic Pro·MainStage 소리로</b>: Clarii는 <b>MIDI Mode</b>. <b>연결 (입/출력)</b>에서 🎷 입력 = Clarii, 🔊 출력 = <b>IAC 드라이버 버스 1</b>.<br>
-          Logic: 설정 → MIDI → 입력에서 Clarii 체크 해제, IAC 드라이버만 체크 / MainStage: 레이아웃 모드 → 건반 그림 → 입력을 IAC 드라이버로.</li>
-        <li><b>컴퓨터 내장음으로 (Logic 없이)</b>: 출력은 "없음". <b>출력 컴퓨터 내장음</b>에서 🎼 사운드·🎺 악기를 고릅니다 (출력이 "없음"이면 내장 소리가 자동으로 켜집니다). 기본 사운드폰트(약 30MB)는 처음 한 번만 내려받고, 다른 .sf2는 [sf2 불러오기]로 넣습니다.</li>
-        <li><b>Clarii 본체 소리로</b>: Clarii를 <b>System(일반) 모드</b>로 두고 입력·출력 모두 Clarii를 고른 뒤 "입/출력 같은 경우(Clarii/Clarii)"를 체크합니다 (2중 소리 방지). MIDI Mode에서는 받은 음이 기기에서 나지 않습니다.</li>
+        <li><b>Mac · Windows PC</b>: Chrome 또는 Edge.</li>
+        <li><b>안드로이드 태블릿</b>: Chrome. 악기는 USB-C OTG 케이블(젠더)로 연결합니다.</li>
+        <li><b>iPad · iPhone은 안 됩니다</b> (iOS 브라우저는 Web MIDI 미지원). Safari·Firefox도 안 됩니다.</li>
+        <li>처음 열 때 "MIDI 기기 사용"을 묻는 창이 나오면 <b>허용</b>. 컴퓨터에 저장한 파일을 직접 열면(file://) MIDI·소리가 막히므로 <b>웹 주소</b>로 여십시오.</li>
       </ul>
-      <h4 class="ht">연주</h4>
+
+      <h4 class="ht">2. 악기 연결</h4>
       <ul>
-        <li><b>조표</b>를 고르고 C장조(다장조) 운지로 연주하면 조표의 ♯/♭이 자동으로 붙습니다.</li>
-        <li><b>✱1·✱2 = ♮ 제자리표</b>: 누르는 동안 조표를 뗍니다. 예: ✱1은 왼손(1·2·3), ✱2는 오른손(4·5·6) 손가락용.</li>
-        <li><b>반음(임시표)</b>은 악기의 반음 키 운지로 냅니다. 운지 결과가 흰건반 음이면(예: E+반음 키 = F) 조표가 적용되므로, ✱(♮)를 누른 채 그 음(F)을 붑니다.</li>
-        <li><b>MIDI 건반</b>으로 연주할 때: 입력으로 고르면 '반음 키 해석'이 자동으로 <b>해석 안 함</b>이 되어 검은 건반은 누른 음 그대로 납니다. 흰 건반에는 조표가 붙으므로(예: 사장조의 F 건반 = F♯), 원래 음(F)은 ♮를 누른 채 칩니다 — 서스테인 페달을 ✱1로 '학습'하거나, 컴퓨터 키보드 E를 누른 채.</li>
-        <li><b>건반 자체 스피커로</b> (예: CASIO CT-S300): 본체에서 Local Control을 Off로 하고, 🎷 입력·🔊 출력 모두 그 건반을 고른 뒤 <b>🎨 악기 음색</b>에서 음색을 고릅니다.</li>
-        <li><b>악기 설정</b>의 '고급'을 켜면 ✱키에 ♯ 올림 / ♭ 내림 역할도 줄 수 있습니다 (반음 트릴, F𝄪·E♯ 등을 악보대로 연주할 때).</li>
+        <li><b>Clarii Pro</b>: USB로 연결. Clarii Controllers 앱에서 ✱키를 <b>Artl.</b>로 설정합니다.</li>
+        <li><b>CASIO CT-S300</b> (MIDI 건반의 예): 데이터 전송용 <b>USB 마이크로-B(5핀)</b> 케이블로 연결 (Mac이 USB-C면 "C to 마이크로 5핀"). 서스테인 페달은 <b>전원을 끈 상태에서</b> PEDAL 잭에 꽂은 뒤 켭니다 (FUNCTION → Pedal = Sustain). 목록에는 "CASIO USB-MIDI"로 보입니다.</li>
+        <li><b>그 밖의 MIDI 건반</b>: USB로 꽂으면 바로 인식됩니다 (드라이버 불필요).</li>
+        <li>🎷 입력에서 악기를 고르면 '반음 키 해석'이 자동으로 정해집니다 — 관악기는 <b>자동</b>, 건반은 <b>해석 안 함</b>.</li>
       </ul>
-      <h4 class="ht">컴퓨터 키보드 (악기가 없을 때)</h4>
+
+      <h4 class="ht">3. 소리 낼 곳 고르기 (🔊 출력)</h4>
+      <ul>
+        <li><b>내장음 (모든 기기, 가장 간단)</b>: 출력 "없음". 내장 소리가 자동으로 켜지고, <b>출력 컴퓨터 내장음</b>에서 🎼 사운드·🎺 악기를 고릅니다. 기본 사운드폰트(약 30MB)는 처음 한 번만 내려받으며, 다른 .sf2는 [sf2 불러오기]로 넣습니다. 건반을 쓸 때는 건반 자체 음량을 0으로 줄이십시오.</li>
+        <li><b>DAW (Logic·MainStage·Cubase 등)</b>:
+          <br>· <b>Mac</b>: 오디오 MIDI 설정 → 윈도우 → MIDI 스튜디오 보기 → <b>IAC 드라이버</b> → "기기가 온라인 상태임" 체크. 출력 = <b>IAC 드라이버 버스 1</b>. Logic은 설정 → MIDI → 입력에서 악기는 끄고 IAC만 켭니다. (Clarii는 MIDI Mode)
+          <br>· <b>Windows</b>: 무료 <b>loopMIDI</b>로 가상 포트를 하나 만들고, KeySig 출력과 DAW 입력을 모두 그 포트로. Windows는 한 MIDI 장치를 한 프로그램만 열 수 있으므로 DAW에서는 악기 입력을 끄십시오.
+          <br>· <b>안드로이드</b>: 내장음을 권장합니다.</li>
+        <li><b>Clarii 본체 소리</b>: Clarii를 <b>System(일반) 모드</b>로 두고 입력·출력 모두 Clarii → "입/출력 같은 경우(Clarii/Clarii)"가 자동 체크됩니다 (2중 소리 방지).</li>
+        <li><b>건반 자체 스피커 (CT-S300 등)</b>: 건반에서 <b>FUNCTION → Local Control → Off</b> (CT-S300은 전원을 켤 때마다). 입력·출력 모두 "CASIO USB-MIDI"를 고르고, 출력 아래 <b>🎨 악기 음색</b>에서 음색을 고릅니다 (CT-S300 톤 394개 / 다른 건반은 GM 128음색). 본체 패널의 톤 선택은 KeySig를 거친 소리에 적용되지 않습니다.</li>
+      </ul>
+
+      <h4 class="ht">4. 연주</h4>
+      <ul>
+        <li><b>조표</b>를 고르고 다장조 운지(건반은 흰 건반)로 연주하면 조표의 ♯/♭이 자동으로 붙습니다.</li>
+        <li><b>♮ 제자리표</b>: 누르는 동안 조표를 뗍니다.
+          <br>· Clarii: ✱1·✱2 (예: ✱1 왼손 1·2·3, ✱2 오른손 4·5·6 손가락용).
+          <br>· 건반: <b>악기 설정 → 악기 키 1 [학습]</b>을 누르고 서스테인 페달을 한 번 밟으면 CC64로 지정됩니다. 또는 컴퓨터 키보드 <b>E</b>를 누른 채.</li>
+        <li><b>임시표(반음)</b>:
+          <br>· Clarii: 악기의 반음 키 운지로. 결과가 흰건반 음이면(예: E+반음 키 = F) 조표가 적용되므로 ✱(♮)를 누른 채 F를 붑니다.
+          <br>· 건반: 새로 붙는 ♯·♭은 <b>검은 건반</b> 그대로 (예: 사장조의 C♯). 조표 붙은 흰 건반의 원래 음(사장조의 F)만 페달(♮).</li>
+        <li><b>건반일 때 악기 설정</b>: '단음 악기(관악기)' 체크 해제(화음), '벨로시티 고정' 해제(누르는 세기 반영).</li>
+        <li><b>악기 설정 → '고급'</b>을 켜면 ✱키에 ♯ 올림 / ♭ 내림 역할도 줄 수 있습니다 (반음 트릴, F𝄪·E♯ 등을 악보대로 연주할 때).</li>
+      </ul>
+
+      <h4 class="ht">5. 컴퓨터 키보드 (악기가 없을 때)</h4>
       <p class="help">A S D F G H J = C D E F G A B, K L ; = 위 C D E · Q/W/E 누른 채 = ♭/♯/♮ · ←/→ 조표 · 0 조표 Off · ↑/↓ 옥타브 · PgUp/PgDn 이조 · Esc 모든 음 끄기.
-        악기가 연결되어 있으면 키보드는 조작만 하고 음은 내지 않습니다.</p>
+        악기가 연결되어 있으면 키보드는 조작만 하고 음은 내지 않습니다 (Q/W/E는 악기 연주 중에도 작동).</p>
     </details>
   </div>
 </main>
