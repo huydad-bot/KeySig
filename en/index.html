@@ -141,7 +141,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
       <span class="led" id="ledIn"></span><span>Instrument signal</span>
       <span class="led" id="ledNote"></span><span>Note</span>
       <span class="status" id="lastIn">No signal received yet</span></div>
-    <div class="row io"><label for="outSel"><span class="bul">🔊</span>Output (Logic Pro, etc.)</label>
+    <div class="row io"><label for="outSel"><span class="bul">🔊</span>Output (DAW / built-in / external instrument)</label>
       <select id="outSel"></select>
     </div>
     <div class="iosub"><span class="status" id="midiStatus"></span></div>
@@ -198,7 +198,7 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
 
   <div class="card">
     <details id="instDetails">
-      <summary>Instrument Settings <span class="h2note">(based on Clarii Pro 20)</span></summary>
+      <summary>Instrument Settings <span class="h2note">(Clarii Pro / CASIO CT-S300)</span></summary>
     <div class="row">
       <label for="semiSel">Semitone keys</label>
       <select id="semiSel">
@@ -255,30 +255,50 @@ body.help-on [data-help]{outline:1px dashed var(--accent);outline-offset:2px;cur
     <details>
       <summary>How to use · first-time setup</summary>
       <p class="help">The boxes above start folded. Click a title to open it; saved settings stay in effect even while a box is folded.</p>
-      <h4 class="ht">First time only (Mac)</h4>
-      <ol>
-        <li>Audio MIDI Setup → Window → Show MIDI Studio → double-click <b>IAC Driver</b> → check "Device is online".</li>
-        <li>In Clarii Controllers, set the ✱ keys to <b>Artl.</b></li>
-      </ol>
-      <h4 class="ht">Choose how to hear it — one of three</h4>
+
+      <h4 class="ht">1. Devices and browsers</h4>
       <ul>
-        <li><b>Through Logic Pro / MainStage</b>: Clarii in <b>MIDI Mode</b>. In <b>Connection (In/Out)</b>: 🎷 input = Clarii, 🔊 output = <b>IAC Driver Bus 1</b>.<br>
-          Logic: Settings → MIDI → Inputs: uncheck the Clarii, check only the IAC Driver / MainStage: Layout mode → keyboard screen control → input = IAC Driver.</li>
-        <li><b>Built-in sound (no Logic)</b>: output = "None". In <b>Output: Built-in Sound</b>, choose 🎼 sound and 🎺 instrument (the built-in sound turns on automatically when the output is "None"). The default SoundFont (about 30 MB) is downloaded once; add other .sf2 files with [Load sf2].</li>
-        <li><b>The Clarii's own sound</b>: put the Clarii in <b>System (normal) mode</b>, choose the Clarii as both input and output, and check "Same input and output (Clarii/Clarii)" (prevents doubled notes). In MIDI Mode, notes sent to the instrument do not sound.</li>
+        <li><b>Mac · Windows PC</b>: Chrome or Edge.</li>
+        <li><b>Android tablet</b>: Chrome. Connect the instrument with a USB-C OTG cable/adapter.</li>
+        <li><b>iPad · iPhone do not work</b> (iOS browsers do not support Web MIDI). Safari and Firefox do not work either.</li>
+        <li>When asked to allow "MIDI devices", choose <b>Allow</b>. Opening a saved file directly (file://) blocks MIDI and sound, so open the <b>web address</b>.</li>
       </ul>
-      <h4 class="ht">Playing</h4>
+
+      <h4 class="ht">2. Connect the instrument</h4>
       <ul>
-        <li>Choose the <b>key signature</b> and play with C-major fingerings; the key signature's ♯/♭ are applied automatically.</li>
-        <li><b>✱1·✱2 = ♮ natural</b>: cancels the key signature while held. E.g. ✱1 for the left hand (1·2·3), ✱2 for the right hand (4·5·6).</li>
-        <li><b>Semitones (accidentals)</b> come from the instrument's semitone-key fingerings. If the result is a white-key note (e.g. E + semitone key = F), the key signature is applied, so hold ✱ (♮) and play that note (F).</li>
-        <li>With a <b>MIDI keyboard</b>: when chosen as input, "Semitone keys" switches automatically to <b>Don't interpret</b>, so black keys play exactly as pressed. White keys get the key signature (e.g. in G major the F key = F♯), so for the plain note (F) hold ♮ — "Learn" your sustain pedal as ✱1, or hold E on the computer keyboard.</li>
-        <li><b>Through the keyboard's own speakers</b> (e.g. CASIO CT-S300): set Local Control to Off on the keyboard, choose that keyboard as both 🎷 input and 🔊 output, then pick a sound under <b>🎨 Instrument sound</b>.</li>
-        <li>Turn on "Advanced" in <b>Instrument Settings</b> to give the ✱ keys ♯ raise / ♭ lower roles (for semitone trills, or playing F𝄪, E♯ etc. as written).</li>
+        <li><b>Clarii Pro</b>: connect by USB. In the Clarii Controllers app set the ✱ keys to <b>Artl.</b></li>
+        <li><b>CASIO CT-S300</b> (example of a MIDI keyboard): connect with a data-capable <b>USB Micro-B</b> cable (USB-C to Micro-B for USB-C Macs). Plug the sustain pedal into the PEDAL jack <b>with the power off</b>, then turn it on (FUNCTION → Pedal = Sustain). It appears as "CASIO USB-MIDI".</li>
+        <li><b>Other MIDI keyboards</b>: plug in by USB; no driver needed.</li>
+        <li>When you choose the 🎷 input, "Semitone keys" is set automatically — <b>Auto</b> for wind controllers, <b>Don't interpret</b> for keyboards.</li>
       </ul>
-      <h4 class="ht">Computer keyboard (no instrument)</h4>
+
+      <h4 class="ht">3. Choose where the sound comes from (🔊 Output)</h4>
+      <ul>
+        <li><b>Built-in sound (all devices, simplest)</b>: output "None". The built-in sound turns on automatically; choose 🎼 sound and 🎺 instrument under <b>Output: Built-in Sound</b>. The default SoundFont (about 30 MB) is downloaded once; add other .sf2 files with [Load sf2]. With a keyboard, turn the keyboard's own volume down to 0.</li>
+        <li><b>DAW (Logic, MainStage, Cubase, etc.)</b>:
+          <br>· <b>Mac</b>: Audio MIDI Setup → Window → Show MIDI Studio → <b>IAC Driver</b> → check "Device is online". Output = <b>IAC Driver Bus 1</b>. In Logic: Settings → MIDI → Inputs: turn the instrument off and only the IAC on. (Clarii in MIDI Mode)
+          <br>· <b>Windows</b>: create a virtual port with the free <b>loopMIDI</b>, and choose it as both the KeySig output and the DAW input. Windows lets only one program open a MIDI device, so turn the instrument input off in the DAW.
+          <br>· <b>Android</b>: the built-in sound is recommended.</li>
+        <li><b>The Clarii's own sound</b>: put the Clarii in <b>System (normal) mode</b> and choose the Clarii as both input and output → "Same input and output (Clarii/Clarii)" is checked automatically (prevents doubled notes).</li>
+        <li><b>The keyboard's own speakers (CT-S300, etc.)</b>: on the keyboard set <b>FUNCTION → Local Control → Off</b> (on the CT-S300, every time it is powered on). Choose "CASIO USB-MIDI" as both input and output, then pick a sound under <b>🎨 Instrument sound</b> below the output (394 CT-S300 tones / GM 128 sounds for other keyboards). The panel tone selection does not apply to notes coming through KeySig.</li>
+      </ul>
+
+      <h4 class="ht">4. Playing</h4>
+      <ul>
+        <li>Choose the <b>key signature</b> and play with C-major fingerings (white keys on a keyboard); the key signature's ♯/♭ are applied automatically.</li>
+        <li><b>♮ natural</b>: cancels the key signature while held.
+          <br>· Clarii: ✱1 and ✱2 (e.g. ✱1 for the left hand 1·2·3, ✱2 for the right hand 4·5·6).
+          <br>· Keyboard: press <b>Instrument Settings → Instrument key 1 [Learn]</b> and step on the sustain pedal once; it is assigned as CC64. Or hold <b>E</b> on the computer keyboard.</li>
+        <li><b>Accidentals (semitones)</b>:
+          <br>· Clarii: use the instrument's semitone-key fingerings. If the result is a white-key note (e.g. E + semitone key = F), the key signature is applied, so hold ✱ (♮) and play F.
+          <br>· Keyboard: new ♯/♭ are played on the <b>black keys</b> as they are (e.g. C♯ in G major). Only the plain note of a white key that has a key-signature accidental (F in G major) needs the pedal (♮).</li>
+        <li><b>Instrument Settings for a keyboard</b>: uncheck "Monophonic (wind instrument)" for chords, and uncheck "Fixed velocity" so key velocity is used.</li>
+        <li>Turn on <b>Instrument Settings → "Advanced"</b> to give the ✱ keys ♯ raise / ♭ lower roles (for semitone trills, or playing F𝄪, E♯ etc. as written).</li>
+      </ul>
+
+      <h4 class="ht">5. Computer keyboard (no instrument)</h4>
       <p class="help">A S D F G H J = C D E F G A B, K L ; = C D E above · hold Q/W/E = ♭/♯/♮ · ←/→ key signature · 0 key signature Off · ↑/↓ octave · PgUp/PgDn transpose · Esc all notes off.
-        When an instrument is connected, the keyboard only controls — it does not play notes.</p>
+        When an instrument is connected, the keyboard only controls — it does not play notes (Q/W/E still work while playing the instrument).</p>
     </details>
   </div>
 </main>
