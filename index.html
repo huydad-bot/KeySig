@@ -315,7 +315,7 @@ const MINOR = {0:"A",1:"E",2:"B",3:"F♯",4:"C♯",5:"G♯",6:"D♯",7:"A♯",[-
 const CHROMA = ["C","C♯","D","D♯","E","F","F♯","G","G♯","A","A♯","B"];
 const ROLES = [["사용 안 함",""],["♮ 제자리표 (조표 해제)","nat"],["♯ 올림 (조표 적용 음 + 반음)","sharp"],["♭ 내림 (조표 적용 음 − 반음)","flat"]];
 const BREATH_CC = new Set([2,7,11]);
-const CONTINUOUS_CC = new Set([1,2,5,7,11,65,74,120,121,123]);
+const CONTINUOUS_CC = new Set([1,2,5,7,11,65,68,74,120,121,123]);   // 학습에서 제외 (68 = Robkoo 레가토, 음과 함께 자동 전송)
 const accSym = a => ({"-2":"𝄫","-1":"♭","0":"","1":"♯","2":"𝄪"})[a] ?? "?";
 const ksShort = k => k === 0 ? "Off" : Math.abs(k) + (k > 0 ? "♯" : "♭");
 function ksAcc(letter, ks){
@@ -328,7 +328,9 @@ function ksAcc(letter, ks){
 const S = {
   ks:0, transpose:0, octave:0, semi:"auto", fixVel:100, mono:true,
   slots:[{cc:80, role:"nat"}, {cc:81, role:"nat"}], adv:false,
-  inst:new Set(),            // 악기 키로 눌린 역할
+  inst:new Set(),            // 지금 눌린 악기 키들의 역할 (slotOn에서 계산)
+  slotOn:new Set(),          // 지금 눌린 악기 키 번호 (0, 1)
+  slotsBy:{},                // 입력 기기 이름별 ✱키 설정            // 악기 키로 눌린 역할
   kmods:new Set(),           // 컴퓨터 키보드 q/w/e
   learning:-1,
   active:new Map(),          // "ch:in" -> out
@@ -339,10 +341,15 @@ const S = {
 const store = {
   get(){ try { return JSON.parse(localStorage.getItem("keysig") || "{}"); } catch(e){ return {}; } },
   set(){ try { localStorage.setItem("keysig", JSON.stringify({
-      ks:S.ks, transpose:S.transpose, semi:S.semi, lastIn:S.lastIn, tones:S.tones, fixVel:S.fixVel, mono:S.mono, slots:S.slots, adv:S.adv,
+      ks:S.ks, transpose:S.transpose, semi:S.semi, lastIn:S.lastIn, tones:S.tones, fixVel:S.fixVel, mono:S.mono, slots:S.slots, slotsBy:(saveSlots(), S.slotsBy), adv:S.adv,
       inName:inSel.selectedOptions[0]?.textContent, outName:outSel.selectedOptions[0]?.textContent,
       synth:synthChk.checked, sf:$("sfSel").value, preset:($("presetSel").value.includes(":") ? $("presetSel").value : store.get().preset), vol:+$("volRng").value })); } catch(e){} }
 };
+
+function clearInst(){ S.slotOn.clear(); S.inst.clear(); }
+function recalcInst(){ S.inst = new Set([...S.slotOn].map(i => S.slots[i].role).filter(Boolean)); }
+const DEF_SLOTS = () => [{cc:80, role:"nat"}, {cc:81, role:"nat"}];
+function saveSlots(){ if (S.lastIn) S.slotsBy[S.lastIn] = S.slots.map(x => ({...x})); }
 
 /* ───────── 음 계산 (keysig_midi.py v3.5 과 동일) ───────── */
 function isNat(){ return S.kmods.has("e") || S.inst.has("nat"); }
@@ -451,13 +458,14 @@ function onMidi(ev){
   if (type === 0xB0){
     if (S.learning >= 0 && !CONTINUOUS_CC.has(d1) && d2 >= 64){
       const k = S.learning; S.learning = -1;
-      S.slots[k].cc = d1; S.inst.clear(); renderSlots(); store.set();
+      S.slots[k].cc = d1; clearInst(); renderSlots(); store.set();
       monitor("키 " + (k + 1) + " = CC" + d1 + " 로 지정됨", "ok"); return;
     }
-    const slot = S.slots.find(s => s.cc === d1 && s.role);
-    if (slot){
-      if (d2 >= 64) S.inst.add(slot.role); else S.inst.delete(slot.role);
-      remapHeld(); renderMods();
+    const hits = S.slots.map((x, i) => x.cc === d1 && x.role ? i : -1).filter(i => i >= 0);
+    if (hits.length){                     // 키마다 따로 기억: ✱1을 뗄 때 ✱2가 아직 눌려 있으면 ♮ 유지
+      const slot = S.slots[hits[0]];
+      for (const i of hits) { if (d2 >= 64) S.slotOn.add(i); else S.slotOn.delete(i); }
+      recalcInst(); remapHeld(); renderMods();
       monitor("CC" + d1 + " = " + d2 + "  → " + ROLES.find(r => r[1] === slot.role)[0].split(" (")[0]);
       return;
     }
@@ -556,7 +564,7 @@ fillRoles();
 $("advChk").onchange = e => {
   S.adv = e.target.checked;
   if (!S.adv) S.slots.forEach(s => { if (s.role === "sharp" || s.role === "flat") s.role = "nat"; });
-  S.inst.clear(); fillRoles(); renderMods(); store.set();
+  clearInst(); fillRoles(); renderMods(); store.set();
 };
 
 ksSel.onchange = () => setKs(+ksSel.value);
@@ -570,11 +578,13 @@ $("fixChk").onchange = $("fixVal").onchange = () => {
   S.fixVel = $("fixChk").checked ? v : 0; store.set();
 };
 $("monoChk").onchange = e => { S.mono = e.target.checked; store.set(); };
-for (const i of [0, 1]) $("role" + i).onchange = e => { S.slots[i].role = e.target.value; S.inst.clear(); renderMods(); store.set(); };
+for (const i of [0, 1]) $("role" + i).onchange = e => { S.slots[i].role = e.target.value; clearInst(); renderMods(); store.set(); };
 document.querySelectorAll("[data-learn]").forEach(b => b.onclick = () => {
-  const k = +b.dataset.learn; S.learning = k;
+  const k = +b.dataset.learn;
+  if (S.learning === k) { S.learning = -1; renderSlots(); monitor("학습 취소", ""); return; }   // 다시 누르면 취소
+  S.learning = k; renderSlots();                       // 다른 키의 '대기…' 표시는 원래대로
   $("cc" + k).textContent = "대기…";
-  monitor("학습 중: 악기에서 키 " + (k + 1) + "로 쓸 키를 누르십시오", "warn");
+  monitor("학습 중: 악기에서 키 " + (k + 1) + "로 쓸 키를 누르십시오 (반응이 없으면 그 키를 누른 채 음을 불어 보십시오 · [학습]을 다시 누르면 취소)", "warn");
 });
 
 /* ───────── MIDI 포트 ───────── */
@@ -604,14 +614,17 @@ function connect(){
   inPort = access.inputs.get(inSel.value) || null;
   outPort = access.outputs.get(outSel.value) || null;
   if (inPort) inPort.onmidimessage = onMidi;
-  S.active.clear(); S.outCount.clear(); S.inst.clear();
+  S.active.clear(); S.outCount.clear(); clearInst();
   $("selfRow").hidden = !outPort || isCasio(outPort.name);   // CASIO 등 건반: Local Off 방식이라 이 칸을 쓰지 않음
   if (outPort && isCasio(outPort.name)) $("selfChk").checked = false;
   const wantSynth = !outPort;               // 출력 포트가 없으면 내장 소리, 있으면 끔
   if (synthChk.checked !== wantSynth) { synthChk.checked = wantSynth; synth.enable(wantSynth); }
   const pair = (inPort ? inPort.name : "") + "|" + (outPort ? outPort.name : "");
   if (inPort && inPort.name !== S.lastIn) {   // 입력 장치가 바뀌면: 관악기 → 자동, 그 밖(건반 등) → 해석 안 함
+    saveSlots();                                // 이전 악기의 ✱키 설정 보관
     S.lastIn = inPort.name;
+    S.slots = (S.slotsBy[inPort.name] || DEF_SLOTS()).map(x => ({...x}));   // 악기마다 따로 (예: Clarii CC52 / R1 CC80)
+    clearInst(); fillRoles(); renderSlots(); renderMods();
     S.semi = isWind(inPort.name) ? "auto" : "off";
     $("semiSel").value = S.semi; store.set();
   }
@@ -1064,7 +1077,9 @@ try { const t = localStorage.getItem("keysig-theme"); if (t) document.documentEl
   if (s.tones && typeof s.tones === "object") S.tones = s.tones;
   if (typeof s.fixVel === "number") S.fixVel = s.fixVel;
   if (typeof s.mono === "boolean") S.mono = s.mono;
-  if (Array.isArray(s.slots) && s.slots.length === 2) S.slots = s.slots;
+  if (Array.isArray(s.slots) && s.slots.length === 2) S.slots = s.slots.map((x, i) => CONTINUOUS_CC.has(x.cc) ? { ...x, cc: 80 + i } : x);   // 잘못 학습된 연속 신호는 기본값으로
+  if (s.slotsBy && typeof s.slotsBy === "object") S.slotsBy = s.slotsBy;
+  for (const k in S.slotsBy) S.slotsBy[k] = S.slotsBy[k].map((x, i) => CONTINUOUS_CC.has(x.cc) ? { ...x, cc: 80 + i } : x);
   if (typeof s.adv === "boolean") S.adv = s.adv;
   $("semiSel").value = S.semi; $("trSel").value = S.transpose; $("octSel").value = 0;
   $("fixChk").checked = S.fixVel > 0; if (S.fixVel) $("fixVal").value = S.fixVel;
